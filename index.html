@@ -1,0 +1,1790 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مكتبة المنارة الرقمية | Manara Digital Library</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #8B5A2B; --primary-hover: #6d4520; --secondary: #D4A373; --accent: #E9EDC9;
+            --bg-body: #FEFAE0; --bg-card: #ffffff; --text-dark: #3E2723; --text-light: #5D4037;
+            --text-muted: #8D6E63; --border-color: rgba(139, 90, 43, 0.2); --whatsapp: #25D366;
+            --danger: #c62828; --danger-hover: #b71c1c; --success: #2e7d32; --info: #1976d2; --warning: #f39c12;
+            --shadow-sm: 0 4px 6px rgba(0,0,0,0.05); --shadow-md: 0 10px 25px rgba(0,0,0,0.1);
+            --shadow-lg: 0 20px 40px rgba(0,0,0,0.15); --radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        body.dark-mode {
+            --primary: #D4A373; --primary-hover: #e0b88a; --secondary: #8B5A2B; --accent: #2c1e16;
+            --bg-body: #1a120e; --bg-card: #2c1e16; --text-dark: #FEFAE0; --text-light: #d4c3b3;
+            --text-muted: #a1887f; --border-color: rgba(212, 163, 115, 0.3); --shadow-md: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Cairo', sans-serif; background-color: var(--bg-body); color: var(--text-dark); line-height: 1.7; overflow-x: hidden; transition: background-color 0.3s, color 0.3s; }
+        h1, h2, h3, h4 { font-family: 'Amiri', serif; }
+        a { text-decoration: none; color: inherit; }
+
+        #loadingScreen { position: fixed; top:0; left:0; width:100%; height:100%; background: #2c1e16; display:flex; justify-content:center; align-items:center; z-index: 99999; color:#fff; font-size:1.5rem; flex-direction: column; gap:20px; }
+        #loadingScreen .spinner { width: 60px; height: 60px; border: 5px solid var(--secondary); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        #splashScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #2c1e16 0%, #4a3325 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; text-align: center; padding: 20px; transition: opacity 0.8s ease, visibility 0.8s ease; }
+        #splashScreen.hidden { opacity: 0; visibility: hidden; }
+        .splash-logo { height: 180px; width: auto; border-radius: 50%; object-fit: cover; border: 5px solid var(--secondary); box-shadow: 0 10px 40px rgba(0,0,0,0.6); margin-bottom: 2rem; background: #fff; padding: 5px; animation: pulseLogo 2s infinite alternate; }
+        @keyframes pulseLogo { from { transform: scale(1); } to { transform: scale(1.05); box-shadow: 0 15px 50px rgba(212, 163, 115, 0.6); } }
+        .splash-title { font-size: 3rem; color: #fff; margin-bottom: 0.5rem; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); }
+        .splash-subtitle { font-size: 1.3rem; color: var(--secondary); margin-bottom: 3rem; }
+        .splash-btn { background: var(--secondary); color: var(--text-dark); padding: 18px 60px; border-radius: 50px; font-size: 1.3rem; font-weight: 700; border: none; cursor: pointer; transition: var(--transition); box-shadow: 0 4px 20px rgba(212, 163, 115, 0.5); display: flex; align-items: center; gap: 10px; }
+        .splash-btn:hover { transform: translateY(-5px) scale(1.05); background: #fff; color: var(--primary); box-shadow: 0 10px 30px rgba(255,255,255,0.3); }
+        .splash-footer { position: absolute; bottom: 30px; color: #a1887f; font-size: 0.9rem; }
+        .designer-name { color: var(--secondary); font-weight: 700; font-family: 'Amiri', serif; font-size: 1rem; letter-spacing: 0.5px; }
+
+        #mainSite { display: none; }
+        #mainSite.visible { display: block; animation: fadeIn 0.8s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        header { background: var(--bg-card); box-shadow: var(--shadow-sm); padding: 1rem 5%; position: sticky; top: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--secondary); transition: background-color 0.3s; flex-wrap: wrap; gap: 10px; }
+        .logo { display: flex; align-items: center; gap: 12px; font-size: 1.6rem; font-weight: 700; color: var(--primary); }
+        .logo img { height: 50px; width: auto; border-radius: 50%; object-fit: cover; box-shadow: var(--shadow-sm); border: 2px solid var(--secondary); }
+        nav ul { display: flex; list-style: none; gap: 1.5rem; align-items: center; }
+        nav ul li a { font-weight: 600; color: var(--text-light); transition: var(--transition); position: relative; font-size: 1rem; cursor: pointer; }
+        nav ul li a:hover { color: var(--primary); }
+        nav ul li a::after { content: ''; position: absolute; width: 0; height: 2px; bottom: -5px; right: 0; background-color: var(--primary); transition: width 0.3s; }
+        nav ul li a:hover::after { width: 100%; }
+
+        .header-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .icon-btn { background: var(--accent); border: 1px solid var(--border-color); color: var(--text-dark); width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: var(--transition); }
+        .icon-btn:hover { transform: rotate(30deg) scale(1.1); background: var(--secondary); color: #fff; }
+        .icon-btn.danger:hover { background: var(--danger); color: #fff; }
+        .icon-btn.login { background: var(--success); color: #fff; border-color: var(--success); }
+        .icon-btn.login:hover { background: #1b5e20; transform: scale(1.1); }
+        .icon-btn.logout { background: var(--danger); color: #fff; border-color: var(--danger); }
+        .icon-btn.student-login { background: var(--info); color: #fff; border-color: var(--info); }
+        .icon-btn.student-login:hover { background: #0d47a1; transform: scale(1.1); }
+
+        .admin-bar { display: none; background: var(--info); color: #fff; text-align: center; padding: 10px; font-weight: 700; font-size: 1rem; position: sticky; top: 73px; z-index: 999; animation: slideDown 0.3s ease; }
+        .admin-bar.active { display: block; }
+        @keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+
+        .user-bar { display: none; background: var(--success); color: #fff; text-align: center; padding: 8px; font-weight: 700; font-size: 0.95rem; position: sticky; top: 73px; z-index: 998; }
+        .user-bar.active { display: block; }
+
+        .hero { min-height: 70vh; background: linear-gradient(rgba(30, 20, 15, 0.85), rgba(30, 20, 15, 0.9)), url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover fixed no-repeat; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: #fff; padding: 0 20px; position: relative; border-bottom: 5px solid var(--secondary); }
+        .hero-logo { height: 150px; width: auto; border-radius: 50%; object-fit: cover; margin-bottom: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.6); border: 4px solid var(--secondary); animation: fadeInUp 0.8s ease-out; background: #fff; padding: 5px; }
+        .hero h1 { font-size: 4rem; margin-bottom: 1rem; text-shadow: 2px 4px 10px rgba(0,0,0,0.6); animation: fadeInUp 1s ease-out 0.2s both; }
+        .hero p { font-size: 1.3rem; max-width: 700px; margin-bottom: 2.5rem; animation: fadeInUp 1s ease-out 0.4s both; color: #e0d5c1; }
+        .hero-btn { background: var(--secondary); color: var(--text-dark); padding: 16px 45px; border-radius: 50px; font-size: 1.2rem; font-weight: 700; border: none; cursor: pointer; transition: var(--transition); animation: fadeInUp 1s ease-out 0.6s both; box-shadow: 0 4px 15px rgba(212, 163, 115, 0.4); }
+        .hero-btn:hover { transform: translateY(-4px) scale(1.02); background: var(--primary); color: #fff; box-shadow: 0 10px 25px rgba(139, 90, 43, 0.6); }
+
+        .stats-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; max-width: 1200px; margin: -50px auto 0; padding: 0 5%; position: relative; z-index: 10; }
+        .stat-card { background: var(--bg-card); padding: 1.5rem; border-radius: var(--radius); box-shadow: var(--shadow-md); display: flex; align-items: center; gap: 15px; border: 1px solid var(--border-color); transition: var(--transition); }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
+        .stat-icon { width: 50px; height: 50px; background: var(--accent); color: var(--primary); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+        .stat-info h4 { font-size: 1.8rem; color: var(--primary); margin-bottom: 2px; }
+        .stat-info p { font-size: 0.9rem; color: var(--text-light); font-weight: 600; }
+
+        .search-section { padding: 4rem 5% 2rem; max-width: 1200px; margin: 0 auto; }
+        .search-container { display: flex; max-width: 800px; margin: 0 auto 2rem; background: var(--bg-card); border-radius: 50px; overflow: hidden; border: 2px solid var(--secondary); box-shadow: var(--shadow-sm); transition: var(--transition); }
+        .search-container:focus-within { box-shadow: 0 0 0 4px rgba(212, 163, 115, 0.3); border-color: var(--primary); }
+        .search-container input { flex: 1; padding: 18px 30px; border: none; background: transparent; font-family: 'Cairo', sans-serif; font-size: 1.1rem; color: var(--text-dark); outline: none; }
+        .search-container button { background: var(--primary); color: #fff; border: none; padding: 0 35px; cursor: pointer; font-size: 1.2rem; transition: var(--transition); }
+        .search-container button:hover { background: var(--primary-hover); }
+        .filters-bar { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-bottom: 2rem; }
+        .filter-select { padding: 10px 20px; border-radius: 50px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-dark); font-family: 'Cairo', sans-serif; font-size: 0.95rem; cursor: pointer; outline: none; transition: var(--transition); }
+        .filter-select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(212, 163, 115, 0.3); }
+        #searchResult { text-align: center; font-size: 1.1rem; font-weight: 600; padding: 10px; border-radius: 8px; display: none; margin-bottom: 1rem; }
+        .result-success { background: #d4edda; color: #155724; display: block !important; }
+        .result-error { background: #f8d7da; color: #721c24; display: block !important; }
+
+        .books-section { padding: 2rem 5% 5rem; }
+        .books-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; max-width: 1400px; margin: 0 auto; }
+        .book-card { background: var(--bg-card); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); transition: var(--transition); border: 1px solid var(--border-color); display: flex; flex-direction: column; position: relative; }
+        .book-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); border-color: var(--secondary); }
+        .book-img { height: 220px; background: linear-gradient(135deg, var(--accent) 0%, var(--bg-card) 100%); display: flex; align-items: center; justify-content: center; font-size: 4rem; color: var(--primary); position: relative; overflow: hidden; }
+        .book-img img { width: 100%; height: 100%; object-fit: cover; }
+        .book-img i { transition: transform 0.4s ease; }
+        .book-card:hover .book-img i { transform: scale(1.15) rotate(5deg); }
+        .badge { position: absolute; top: 15px; right: 15px; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; color: #fff; }
+        .badge.available { background: var(--success); }
+        .badge.borrowed { background: var(--danger); }
+        .badge.pending { background: var(--warning); }
+        .book-info { padding: 1.5rem; flex: 1; display: flex; flex-direction: column; }
+        .book-info h3 { font-size: 1.3rem; margin-bottom: 0.5rem; color: var(--primary); }
+        .book-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px; }
+        .stars { color: #f1c40f; font-size: 0.9rem; }
+        .book-actions { display: flex; gap: 10px; margin-top: auto; flex-wrap: wrap; }
+        .btn-action { flex: 1; padding: 10px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: var(--transition); font-family: 'Cairo', sans-serif; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .btn-borrow { background: var(--secondary); color: var(--text-dark); }
+        .btn-borrow:hover { background: var(--primary); color: #fff; }
+        .btn-return { background: var(--danger); color: #fff; }
+        .btn-return:hover { background: var(--danger-hover); }
+        .btn-details { background: transparent; border: 1px solid var(--border-color); color: var(--text-dark); }
+        .btn-details:hover { background: var(--accent); }
+        .btn-cancel { background: var(--warning); color: #fff; }
+        .btn-cancel:hover { background: #e67e22; }
+        .btn-approve { background: var(--success); color: #fff; }
+        .btn-approve:hover { background: #1b5e20; }
+        .btn-reject { background: var(--danger); color: #fff; }
+        .btn-reject:hover { background: var(--danger-hover); }
+        .btn-edit { background: var(--info); color: #fff; }
+        .btn-edit:hover { background: #0d47a1; }
+        .btn-delete { background: var(--danger); color: #fff; }
+        .btn-delete:hover { background: var(--danger-hover); }
+        .btn-pdf { background: #6a1b9a; color: #fff; }
+        .btn-pdf:hover { background: #4a148c; }
+
+        .admin-panel { display: none; padding: 4rem 5%; max-width: 1200px; margin: 0 auto; }
+        .admin-panel.active { display: block; }
+        .admin-section { background: var(--bg-card); border-radius: var(--radius); box-shadow: var(--shadow-md); padding: 2rem; margin-bottom: 2rem; border: 1px solid var(--border-color); }
+        .admin-section h3 { color: var(--primary); font-size: 1.8rem; margin-bottom: 1.5rem; border-bottom: 2px solid var(--accent); padding-bottom: 10px; }
+        .request-item { display: flex; justify-content: space-between; align-items: center; background: var(--bg-body); padding: 15px; border-radius: 8px; margin-bottom: 10px; border-right: 4px solid var(--info); flex-wrap: wrap; gap: 10px; }
+        .request-info { flex: 1; }
+        .request-info strong { color: var(--primary); }
+        .request-actions { display: flex; gap: 10px; }
+        .request-actions button { padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: 700; transition: var(--transition); font-family: 'Cairo', sans-serif; }
+
+        .add-book-form { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 1.5rem; }
+        .add-book-form input, .add-book-form select, .add-book-form textarea { padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-family: 'Cairo', sans-serif; background: var(--bg-body); color: var(--text-dark); width: 100%; }
+        .add-book-form textarea { grid-column: span 2; resize: vertical; }
+        .add-book-form button { grid-column: span 2; padding: 15px; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; }
+        .add-book-form button:hover { background: var(--primary-hover); }
+        .add-book-form input[type="file"] { padding: 8px; background: var(--bg-card); border: 1px dashed var(--primary); }
+
+        .admin-books-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; margin-top: 1rem; }
+        .admin-book-item { background: var(--bg-body); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 5px; }
+        .admin-book-item h4 { color: var(--primary); font-size: 1.1rem; }
+        .admin-book-item p { font-size: 0.85rem; color: var(--text-light); }
+        .admin-book-item .actions { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
+        .admin-book-item .actions button { flex: 1; padding: 5px; border: none; border-radius: 5px; cursor: pointer; font-weight: 700; font-family: 'Cairo', sans-serif; font-size: 0.8rem; min-width: 60px; }
+
+        .users-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; margin-top: 1rem; }
+        .user-item { background: var(--bg-body); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 8px; position: relative; }
+        .user-item .user-header { display: flex; justify-content: space-between; align-items: center; }
+        .user-item h4 { color: var(--primary); font-size: 1.1rem; margin: 0; }
+        .user-item p { font-size: 0.85rem; color: var(--text-light); margin: 0; word-break: break-all; }
+        .badge-admin { background: var(--warning); color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; }
+        .badge-student { background: var(--info); color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; }
+        .badge-employee { background: var(--success); color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; }
+        .badge-pending { background: var(--warning); color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; }
+        .user-item .actions { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
+        .user-item .actions button { flex: 1; padding: 6px; border: none; border-radius: 5px; cursor: pointer; font-weight: 700; font-family: 'Cairo', sans-serif; font-size: 0.8rem; min-width: 60px; }
+        .btn-promote { background: var(--warning); color: #fff; }
+        .btn-promote:hover { background: #e67e22; }
+        .btn-demote { background: var(--danger); color: #fff; }
+        .btn-demote:hover { background: var(--danger-hover); }
+        .btn-approve-user { background: var(--success); color: #fff; }
+        .btn-approve-user:hover { background: #1b5e20; }
+        .btn-reject-user { background: var(--danger); color: #fff; }
+        .btn-reject-user:hover { background: var(--danger-hover); }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 2000; padding: 20px; }
+        .modal-overlay.active { display: flex; animation: fadeIn 0.3s ease; }
+        .modal-content { background: var(--bg-card); border-radius: var(--radius); max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); position: relative; animation: slideUp 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); border: 1px solid var(--border-color); }
+        .modal-header { padding: 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: var(--accent); border-radius: var(--radius) var(--radius) 0 0; }
+        .modal-header h3 { color: var(--primary); font-size: 1.8rem; }
+        .close-modal { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-dark); transition: var(--transition); }
+        .close-modal:hover { color: var(--danger); transform: rotate(90deg); }
+        .modal-body { padding: 2rem; }
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-dark); }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px 15px; border: 1px solid var(--border-color); border-radius: 8px; font-family: 'Cairo', sans-serif; font-size: 1rem; background: var(--bg-body); color: var(--text-dark); transition: var(--transition); }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(212, 163, 115, 0.2); }
+        .form-group input:disabled { background: #e9ecef; cursor: not-allowed; }
+        .btn-whatsapp { width: 100%; padding: 15px; background: var(--whatsapp); color: #fff; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: var(--transition); margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-whatsapp:hover { background: #128C7E; transform: scale(1.02); }
+        .btn-danger { width: 100%; padding: 15px; background: var(--danger); color: #fff; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: var(--transition); margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-danger:hover { background: var(--danger-hover); transform: scale(1.02); }
+
+        .password-wrapper { position: relative; }
+        .password-wrapper input { padding-left: 40px; }
+        .toggle-password { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted); font-size: 1.1rem; }
+        .toggle-password:hover { color: var(--primary); }
+
+        .toast-container { position: fixed; bottom: 30px; left: 30px; z-index: 3000; display: flex; flex-direction: column; gap: 10px; }
+        .toast { background: var(--bg-card); color: var(--text-dark); padding: 15px 25px; border-radius: 12px; box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 12px; font-weight: 600; border-right: 5px solid var(--primary); animation: slideInLeft 0.4s ease forwards; }
+        .toast.success { border-right-color: var(--success); }
+        .toast.error { border-right-color: var(--danger); }
+        .toast.info { border-right-color: var(--info); }
+        .toast.warning { border-right-color: var(--warning); }
+        .toast i { font-size: 1.3rem; }
+
+        .leaderboard-section { padding: 5rem 5%; background: var(--primary); color: #fff; text-align: center; }
+        .leaderboard-section h2 { font-size: 3rem; margin-bottom: 1rem; color: var(--accent); }
+        .leaderboard-section p { font-size: 1.2rem; margin-bottom: 3rem; opacity: 0.9; }
+        .leaderboard-card { background: var(--bg-card); color: var(--text-dark); max-width: 500px; margin: 0 auto; padding: 3rem; border-radius: var(--radius); box-shadow: var(--shadow-lg); position: relative; overflow: hidden; border: 2px solid var(--secondary); }
+        .winner-name { font-size: 2.5rem; font-weight: 900; color: var(--primary); margin: 1rem 0; }
+        .winner-stats { font-size: 1.2rem; color: var(--text-light); }
+
+        footer { background: #1a120e; color: #d4c3b3; text-align: center; padding: 3rem 5%; border-top: 5px solid var(--secondary); }
+        footer p { margin-bottom: 0.5rem; }
+        .designer-credit {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(212, 163, 115, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            font-size: 1rem;
+        }
+        .designer-credit i { color: var(--secondary); font-size: 1.2rem; }
+        .designer-credit .name { color: var(--secondary); font-weight: 700; font-family: 'Amiri', serif; font-size: 1.15rem; letter-spacing: 0.5px; }
+
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(50px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes slideInLeft { from { opacity: 0; transform: translateX(-100%); } to { opacity: 1; transform: translateX(0); } }
+
+        @media (max-width: 992px) { .hero h1 { font-size: 3rem; } .hero-logo { height: 120px; } .stats-bar { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) {
+            header { flex-direction: column; gap: 1rem; padding: 1rem; }
+            .logo img { height: 40px; }
+            .hero-logo { height: 100px; }
+            nav ul { flex-wrap: wrap; justify-content: center; gap: 0.8rem; }
+            .hero h1 { font-size: 2.2rem; }
+            .hero p { font-size: 1rem; }
+            .stats-bar { grid-template-columns: 1fr; margin-top: -30px; }
+            .search-container { flex-direction: column; border-radius: 12px; }
+            .search-container input { padding: 15px; text-align: center; }
+            .search-container button { padding: 15px; border-radius: 0 0 12px 12px; }
+            .filters-bar { flex-direction: column; align-items: stretch; }
+            .books-grid { grid-template-columns: 1fr; }
+            .toast-container { left: 10px; right: 10px; bottom: 10px; }
+            .add-book-form { grid-template-columns: 1fr; }
+            .add-book-form textarea { grid-column: span 1; }
+            .add-book-form button { grid-column: span 1; }
+            .request-item { flex-direction: column; align-items: flex-start; }
+            .request-actions { width: 100%; justify-content: flex-end; }
+            .admin-books-list { grid-template-columns: 1fr; }
+            .users-list { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loadingScreen">
+        <div class="spinner"></div>
+        <p>جاري تحميل المكتبة...</p>
+    </div>
+
+    <!-- ========== شاشة البداية مع اسم المهندسة ========== -->
+    <div id="splashScreen">
+        <img src="https://i.postimg.cc/TYPF7wPy/IMG-3258.jpg" alt="لوجو مدرسة المنارة" class="splash-logo">
+        <h1 class="splash-title">مكتبة المنارة الرقمية</h1>
+        <p class="splash-subtitle">بوابتك إلى عالم المعرفة والاستكشاف</p>
+        <button class="splash-btn" onclick="enterLibrary()">
+            <i class="fas fa-book-open"></i> دخول إلى المكتبة
+        </button>
+       
+    </div>
+
+    <div id="mainSite">
+        <header>
+            <div class="logo">
+                <img src="https://i.postimg.cc/TYPF7wPy/IMG-3258.jpg" alt="لوجو مدرسة المنارة">
+                <span>مكتبة المنارة</span>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#home">الرئيسية</a></li>
+                    <li><a href="#search">البحث</a></li>
+                    <li><a href="#books">تصفح الكتب</a></li>
+                    <li><a href="#leaderboard">أفضل قارئ</a></li>
+                    <li id="adminPanelLink" style="display: none;"><a onclick="showAdminPanel()" style="color: var(--info); font-weight: bold;"><i class="fas fa-tools"></i> لوحة الإدارة</a></li>
+                </ul>
+            </nav>
+            <div class="header-actions">
+                <button class="icon-btn danger" onclick="resetSystem()" title="تصفير النظام (للمسؤول فقط)">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+                <button class="icon-btn" onclick="toggleTheme()" id="themeBtn" title="تبديل الوضع الليلي">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="icon-btn student-login" id="studentLoginBtn" onclick="openStudentLoginModal()" title="دخول الطالب/الموظف">
+                    <i class="fas fa-user-graduate"></i>
+                </button>
+                <button class="icon-btn login" id="loginBtn" onclick="openLoginModal()" title="دخول الإدارة">
+                    <i class="fas fa-user-shield"></i>
+                </button>
+                <button class="icon-btn logout" id="logoutBtn" onclick="logout()" style="display: none;" title="تسجيل الخروج">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="admin-bar" id="adminBar">
+            <i class="fas fa-check-circle"></i> أنت مسجل الدخول كمسؤول المكتبة. جميع الصلاحيات متاحة لك.
+        </div>
+
+        <div class="user-bar" id="userBar">
+            <i class="fas fa-user-check"></i> مرحباً <span id="currentUserName"></span> | <a onclick="logoutStudent()" style="text-decoration: underline; cursor: pointer;">تسجيل خروج</a>
+        </div>
+
+        <section class="hero" id="home">
+            <img src="https://i.postimg.cc/TYPF7wPy/IMG-3258.jpg" alt="لوجو مدرسة المنارة" class="hero-logo">
+            <h1>مرحباً بكم في مكتبة المنارة الرقمية</h1>
+            <p>بوابتك إلى عوالم المعرفة، الخيال، والاستكشاف. استعر كتابك المفضل وانضم إلى نخبة القراء في مدرستنا.</p>
+            <button class="hero-btn" onclick="document.getElementById('search').scrollIntoView({behavior: 'smooth'})">ابدأ الاستعارة الآن <i class="fas fa-arrow-down"></i></button>
+        </section>
+
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-book"></i></div>
+                <div class="stat-info"><h4 id="totalBooks">0</h4><p>إجمالي الكتب</p></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="color: var(--success);"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-info"><h4 id="availableBooks">0</h4><p>كتب متاحة</p></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="color: var(--danger);"><i class="fas fa-hand-holding-heart"></i></div>
+                <div class="stat-info"><h4 id="borrowedBooks">0</h4><p>كتب مستعارة</p></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="color: #f39c12;"><i class="fas fa-users"></i></div>
+                <div class="stat-info"><h4 id="activeStudents">0</h4><p>مستخدمون نشطون</p></div>
+            </div>
+        </div>
+
+        <section class="search-section" id="search">
+            <h2 class="section-title" style="text-align: center; color: var(--primary); margin-bottom: 2rem; font-size: 2.5rem;">ابحث عن كتاب</h2>
+            <div class="search-container">
+                <input type="text" id="bookSearchInput" placeholder="اكتب اسم الكتاب هنا...">
+                <button onclick="searchBook()"><i class="fas fa-search"></i></button>
+            </div>
+            <div id="searchResult"></div>
+
+            <div class="filters-bar">
+                <select class="filter-select" id="categoryFilter" onchange="filterBooks()">
+                    <option value="all">كل التصنيفات</option>
+                    <option value="خيال">خيال</option>
+                    <option value="غموض">غموض</option>
+                    <option value="ديني">ديني</option>
+                    <option value="مغامرات">مغامرات</option>
+                    <option value="قصص">قصص</option>
+                    <option value="روايات">روايات</option>
+                    <option value="علوم">علوم</option>
+                    <option value="مراجع">مراجع</option>
+                    <option value="طبخ">طبخ</option>
+                    <option value="أسرة">أسرة</option>
+                    <option value="تنمية بشرية">تنمية بشرية</option>
+                    <option value="فنون">فنون</option>
+                    <option value="تقنية">تقنية</option>
+                    <option value="طب">طب</option>
+                    <option value="صحة">صحة</option>
+                    <option value="تاريخ">تاريخ</option>
+                    <option value="علم نفس">علم نفس</option>
+                    <option value="لغة عربية">لغة عربية</option>
+                    <option value="ألغاز">ألغاز</option>
+                </select>
+                <select class="filter-select" id="sortFilter" onchange="filterBooks()">
+                    <option value="default">ترتيب افتراضي</option>
+                    <option value="title">الاسم (أ-ي)</option>
+                    <option value="popular">الأكثر استعارة</option>
+                    <option value="available">المتاحة أولاً</option>
+                </select>
+            </div>
+        </section>
+
+        <section class="books-section" id="books">
+            <div class="books-grid" id="booksGrid"></div>
+        </section>
+
+        <section class="admin-panel" id="adminPanel">
+            <h2 class="section-title" style="text-align: center; color: var(--primary); margin-bottom: 2rem; font-size: 2.5rem;">لوحة تحكم إدارة المكتبة</h2>
+            
+            <div class="admin-section">
+                <h3><i class="fas fa-clock"></i> طلبات الاستعارة المعلقة (<span id="pendingCount">0</span>)</h3>
+                <div id="pendingRequestsList">
+                    <p style="color: var(--text-muted);">لا توجد طلبات معلقة حالياً.</p>
+                </div>
+            </div>
+
+            <div class="admin-section">
+                <h3><i class="fas fa-book-reader"></i> الاستعارات النشطة (يمكنك التراجع عنها)</h3>
+                <div id="activeBorrowsList">
+                    <p style="color: var(--text-muted);">لا توجد استعارات نشطة حالياً.</p>
+                </div>
+            </div>
+
+            <div class="admin-section">
+                <h3><i class="fas fa-user-clock"></i> طلبات إنشاء الحسابات المعلقة (<span id="pendingUsersCount">0</span>)</h3>
+                <div id="pendingUsersList">
+                    <p style="color: var(--text-muted);">لا توجد طلبات حساب معلقة حالياً.</p>
+                </div>
+            </div>
+
+            <div class="admin-section">
+                <h3><i class="fas fa-plus-circle"></i> إضافة كتاب جديد</h3>
+                <div class="add-book-form">
+                    <input type="text" id="newBookTitle" placeholder="اسم الكتاب">
+                    <select id="newBookCategory">
+                        <option value="روايات">روايات</option>
+                        <option value="خيال">خيال</option>
+                        <option value="غموض">غموض</option>
+                        <option value="ديني">ديني</option>
+                        <option value="تاريخ">تاريخ</option>
+                        <option value="علوم">علوم</option>
+                        <option value="تنمية بشرية">تنمية بشرية</option>
+                        <option value="ألغاز">ألغاز</option>
+                        <option value="لغة عربية">لغة عربية</option>
+                    </select>
+                    <input type="text" id="newBookDesc" placeholder="وصف مختصر للكتاب">
+                    <input type="number" id="newBookRating" placeholder="التقييم (1-5)" min="1" max="5" step="0.1" value="4.5">
+                    <input type="text" id="newBookCover" placeholder="رابط صورة الغلاف (اختياري)">
+                    <input type="file" id="newBookPdfFile" accept="application/pdf">
+                    <button onclick="addNewBook()"><i class="fas fa-save"></i> حفظ الكتاب</button>
+                </div>
+            </div>
+
+            <div class="admin-section">
+                <h3><i class="fas fa-edit"></i> إدارة الكتب</h3>
+                <div class="admin-books-list" id="adminBooksList"></div>
+            </div>
+
+            <div class="admin-section">
+                <h3><i class="fas fa-users-cog"></i> إدارة الحسابات والصلاحيات</h3>
+                <button class="btn-action btn-edit" onclick="openAddUserModal()" style="margin-bottom: 15px; padding: 12px;"><i class="fas fa-user-plus"></i> إضافة حساب جديد يدوياً</button>
+                <div class="users-list" id="usersList"></div>
+            </div>
+
+            <div class="admin-section">
+                <h3><i class="fas fa-hand-holding-heart"></i> تسجيل استعارة يدوياً</h3>
+                <div class="form-group">
+                    <label for="manualBorrowUser">اختر المستخدم</label>
+                    <select id="manualBorrowUser">
+                        <option value="">-- اختر مستخدماً --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="manualBorrowBook">اختر الكتاب</label>
+                    <select id="manualBorrowBook">
+                        <option value="">-- اختر كتاباً --</option>
+                    </select>
+                </div>
+                <button class="btn-whatsapp" onclick="manualBorrow()" style="background: var(--primary);">
+                    <i class="fas fa-save"></i> تسجيل الاستعارة
+                </button>
+            </div>
+
+            <div class="admin-section">
+                <h3><i class="fas fa-key"></i> تغيير كلمة سر الإدارة</h3>
+                <div class="form-group">
+                    <label for="newAdminPassword">كلمة المرور الجديدة</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="newAdminPassword" placeholder="أدخل كلمة المرور الجديدة">
+                        <i class="fas fa-eye toggle-password" onclick="togglePasswordVisibility('newAdminPassword', this)"></i>
+                    </div>
+                </div>
+                <button class="btn-whatsapp" onclick="changeAdminPassword()" style="background: var(--info);">
+                    <i class="fas fa-save"></i> حفظ كلمة المرور
+                </button>
+            </div>
+
+            <div class="admin-section">
+                <h3><i class="fas fa-history"></i> سجل النشاطات</h3>
+                <div id="activityLog" style="max-height: 300px; overflow-y: auto;">
+                    <p style="color: var(--text-muted);">لا توجد نشاطات مسجلة.</p>
+                </div>
+            </div>
+
+            <div class="admin-section" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn-action btn-edit" onclick="exportData()" style="flex:1; padding: 15px;"><i class="fas fa-download"></i> تصدير البيانات (نسخة احتياطية)</button>
+                <button class="btn-action btn-delete" onclick="resetSystem()" style="flex:1; padding: 15px;"><i class="fas fa-trash-alt"></i> تصفير النظام</button>
+            </div>
+        </section>
+
+        <section class="leaderboard-section" id="leaderboard">
+            <h2>🏆 لوحة شرف القراء</h2>
+            <p>يتم تكريم المستخدم الأكثر استعارة للكتب في نهاية كل شهر</p>
+            <div class="leaderboard-card">
+                <div style="font-size: 3rem; margin-bottom: 10px;">👑</div>
+                <h3>أفضل قارئ لهذا الشهر</h3>
+                <div class="winner-name" id="winnerName">لا يوجد قراء بعد</div>
+                <div class="winner-stats" id="winnerStats">كن أول من يستعير كتاباً!</div>
+            </div>
+        </section>
+
+        <!-- ========== التذييل مع اسم المهندسة ========== -->
+        <footer>
+            <p>© 2026 مكتبة مدرسة المنارة الرقمية. جميع الحقوق محفوظة.</p>
+            <p>صمم بكل حب للمعرفة والقراءة <i class="fas fa-heart" style="color: #e74c3c;"></i></p>
+            <div class="designer-credit">
+                <i class="fas fa-code"></i>
+                <span>تصميم وتطوير:</span>
+                <span class="name">المهندسة سارة سعيد</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- النوافذ المنبثقة -->
+    <div class="modal-overlay" id="studentLoginModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header"><h3><i class="fas fa-user-graduate"></i> دخول الطالب / الموظف</h3><button class="close-modal" onclick="closeModal('studentLoginModal')"><i class="fas fa-times"></i></button></div>
+            <div class="modal-body">
+                <div class="form-group"><label for="loginUsername">اسم المستخدم</label><input type="text" id="loginUsername" placeholder="أدخل اسم المستخدم"></div>
+                <div class="form-group"><label for="loginPassword">كلمة المرور</label><div class="password-wrapper"><input type="password" id="loginPassword" placeholder="أدخل كلمة المرور"><i class="fas fa-eye toggle-password" onclick="togglePasswordVisibility('loginPassword', this)"></i></div></div>
+                <button class="btn-whatsapp" onclick="loginUser()" style="background: var(--info);"><i class="fas fa-sign-in-alt"></i> تسجيل الدخول</button>
+                <p style="text-align: center; margin-top: 15px; font-size: 0.95rem;">ليس لديك حساب؟ <a onclick="closeModal('studentLoginModal'); openSignupModal();" style="color: var(--primary); font-weight: bold; cursor: pointer; text-decoration: underline;">إنشاء حساب جديد</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="signupModal">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header"><h3><i class="fas fa-user-plus"></i> إنشاء حساب جديد</h3><button class="close-modal" onclick="closeModal('signupModal')"><i class="fas fa-times"></i></button></div>
+            <div class="modal-body">
+                <p style="color: var(--warning); font-weight: 600; margin-bottom: 15px;"><i class="fas fa-info-circle"></i> سيتم مراجعة طلبك من قبل الإدارة قبل تفعيل الحساب.</p>
+                <div class="form-group"><label for="signupFullName">الاسم الكامل <span style="color: red;">*</span></label><input type="text" id="signupFullName" placeholder="أدخل اسمك الثلاثي"></div>
+                <div class="form-group"><label for="signupUsername">اسم المستخدم <span style="color: red;">*</span></label><input type="text" id="signupUsername" placeholder="مثال: ahmed_2026"></div>
+                <div class="form-group"><label for="signupPassword">كلمة المرور <span style="color: red;">*</span></label><div class="password-wrapper"><input type="password" id="signupPassword" placeholder="6 أحرف على الأقل"><i class="fas fa-eye toggle-password" onclick="togglePasswordVisibility('signupPassword', this)"></i></div></div>
+                <div class="form-group"><label for="signupType">الصفة</label><select id="signupType" onchange="toggleSignupFields()"><option value="طالب">طالب</option><option value="موظف">موظف</option></select></div>
+                <div class="form-group" id="signupClassGroup"><label for="signupClass">الصف / القسم</label><input type="text" id="signupClass" placeholder="مثال: الأول الثانوي - أ"></div>
+                <div class="form-group" id="signupSpecialtyGroup" style="display: none;"><label for="signupSpecialty">الاختصاص</label><input type="text" id="signupSpecialty" placeholder="مثال: أنسة علوم"></div>
+                <button class="btn-whatsapp" onclick="signupUser()" style="background: var(--primary);"><i class="fas fa-user-plus"></i> إرسال طلب إنشاء الحساب</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header"><h3><i class="fas fa-user-shield"></i> دخول إدارة المكتبة</h3><button class="close-modal" onclick="closeModal('loginModal')"><i class="fas fa-times"></i></button></div>
+            <div class="modal-body">
+                <div class="form-group"><label for="adminPassword">كلمة المرور</label><div class="password-wrapper"><input type="password" id="adminPassword" placeholder="أدخل كلمة المرور"><i class="fas fa-eye toggle-password" onclick="togglePasswordVisibility('adminPassword', this)"></i></div></div>
+                <button class="btn-whatsapp" onclick="login()" style="background: var(--info);"><i class="fas fa-sign-in-alt"></i> تسجيل الدخول</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="addUserModal">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header"><h3><i class="fas fa-user-plus"></i> إضافة حساب (الإدارة)</h3><button class="close-modal" onclick="closeModal('addUserModal')"><i class="fas fa-times"></i></button></div>
+            <div class="modal-body">
+                <div class="form-group"><label for="addUserFullName">الاسم الكامل <span style="color: red;">*</span></label><input type="text" id="addUserFullName" placeholder="الاسم الثلاثي"></div>
+                <div class="form-group"><label for="addUserUsername">اسم المستخدم <span style="color: red;">*</span></label><input type="text" id="addUserUsername" placeholder="ahmed_2026"></div>
+                <div class="form-group"><label for="addUserPassword">كلمة المرور <span style="color: red;">*</span></label><div class="password-wrapper"><input type="password" id="addUserPassword" placeholder="أدخل كلمة مرور"><i class="fas fa-eye toggle-password" onclick="togglePasswordVisibility('addUserPassword', this)"></i></div></div>
+                <div class="form-group"><label for="addUserType">الصفة</label><select id="addUserType" onchange="toggleAddUserFields()"><option value="طالب">طالب</option><option value="موظف">موظف</option></select></div>
+                <div class="form-group" id="addUserClassGroup"><label for="addUserClass">الصف / القسم</label><input type="text" id="addUserClass" placeholder="مثال: الأول الثانوي - أ"></div>
+                <div class="form-group" id="addUserSpecialtyGroup" style="display: none;"><label for="addUserSpecialty">الاختصاص</label><input type="text" id="addUserSpecialty" placeholder="مثال: أنسة علوم"></div>
+                <div class="form-group"><label style="display: flex; align-items: center; gap: 10px; cursor: pointer;"><input type="checkbox" id="addUserIsAdmin" style="width: auto;"> تعيين كأدمن</label></div>
+                <button class="btn-whatsapp" onclick="addUserByAdmin()" style="background: var(--primary);"><i class="fas fa-save"></i> إضافة الحساب</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="detailsModal">
+        <div class="modal-content">
+            <div class="modal-header"><h3>تفاصيل الكتاب</h3><button class="close-modal" onclick="closeModal('detailsModal')"><i class="fas fa-times"></i></button></div>
+            <div class="modal-body" id="detailsBody"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="borrowModal">
+        <div class="modal-content">
+            <div class="modal-header"><h3>طلب استعارة: <span id="borrowBookTitle" style="color: var(--secondary);"></span></h3><button class="close-modal" onclick="closeModal('borrowModal')"><i class="fas fa-times"></i></button></div>
+            <div class="modal-body">
+                <div class="form-group"><label>اسم المستعير</label><input type="text" id="borrowerName" disabled></div>
+                <div class="form-group"><label>الصفة</label><input type="text" id="borrowerType" disabled></div>
+                <div class="form-group"><label for="borrowDate">تاريخ الاستعارة *</label><input type="date" id="borrowDate"></div>
+                <div class="form-group"><label for="returnDate">تاريخ الإرجاع *</label><input type="date" id="returnDate"></div>
+                <div class="form-group"><label for="borrowNotes">ملاحظات</label><textarea id="borrowNotes" rows="2"></textarea></div>
+                <button class="btn-whatsapp" onclick="sendWhatsAppRequest()"><i class="fab fa-whatsapp"></i> إرسال الطلب للإدارة</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="editBookModal">
+        <div class="modal-content">
+            <div class="modal-header"><h3>تعديل الكتاب</h3><button class="close-modal" onclick="closeModal('editBookModal')"><i class="fas fa-times"></i></button></div>
+            <div class="modal-body">
+                <input type="hidden" id="editBookId">
+                <div class="form-group"><label>اسم الكتاب</label><input type="text" id="editBookTitle"></div>
+                <div class="form-group"><label>التصنيف</label><select id="editBookCategory"><option value="روايات">روايات</option><option value="خيال">خيال</option><option value="غموض">غموض</option><option value="ديني">ديني</option><option value="تاريخ">تاريخ</option><option value="علوم">علوم</option><option value="تنمية بشرية">تنمية بشرية</option><option value="ألغاز">ألغاز</option><option value="لغة عربية">لغة عربية</option></select></div>
+                <div class="form-group"><label>الوصف</label><textarea id="editBookDesc" rows="3"></textarea></div>
+                <div class="form-group"><label>التقييم</label><input type="number" id="editBookRating" min="1" max="5" step="0.1"></div>
+                <div class="form-group"><label>رابط الغلاف</label><input type="text" id="editBookCover"></div>
+                <div class="form-group"><label>ملف PDF (اختياري)</label><input type="file" id="editBookPdfFile" accept="application/pdf"></div>
+                <button class="btn-whatsapp" onclick="saveEditedBook()" style="background: var(--primary);"><i class="fas fa-save"></i> حفظ</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="returnModal">
+        <div class="modal-content" style="max-width: 450px; text-align: center;">
+            <div class="modal-header" style="justify-content: center; border-bottom: none; background: transparent;"><h3 style="color: var(--danger);"><i class="fas fa-exclamation-triangle"></i> تأكيد التراجع</h3></div>
+            <div class="modal-body">
+                <p style="font-size: 1.1rem; margin-bottom: 2rem;">هل أنت متأكد من تراجعك عن استعارة كتاب <strong id="returnBookTitle" style="color: var(--primary);"></strong>؟</p>
+                <div style="display: flex; gap: 10px;"><button class="btn-action btn-details" onclick="closeModal('returnModal')" style="flex: 1; padding: 15px;">إلغاء</button><button class="btn-danger" onclick="confirmReturn()" style="flex: 1; margin-top: 0;">نعم</button></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="cancelRequestModal">
+        <div class="modal-content" style="max-width: 450px; text-align: center;">
+            <div class="modal-header" style="justify-content: center; border-bottom: none; background: transparent;"><h3 style="color: var(--danger);"><i class="fas fa-times-circle"></i> إلغاء الطلب</h3></div>
+            <div class="modal-body">
+                <p style="font-size: 1.1rem; margin-bottom: 2rem;">هل أنت متأكد من إلغاء طلب استعارة كتاب <strong id="cancelBookTitle" style="color: var(--primary);"></strong>؟</p>
+                <div style="display: flex; gap: 10px;"><button class="btn-action btn-details" onclick="closeModal('cancelRequestModal')" style="flex: 1; padding: 15px;">تراجع</button><button class="btn-danger" onclick="confirmCancelRequest()" style="flex: 1; margin-top: 0;">نعم</button></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="deleteBookModal">
+        <div class="modal-content" style="max-width: 450px; text-align: center;">
+            <div class="modal-header" style="justify-content: center; border-bottom: none; background: transparent;"><h3 style="color: var(--danger);"><i class="fas fa-exclamation-triangle"></i> تأكيد الحذف</h3></div>
+            <div class="modal-body">
+                <p style="font-size: 1.1rem; margin-bottom: 2rem;">حذف كتاب <strong id="deleteBookTitle" style="color: var(--primary);"></strong> نهائياً؟</p>
+                <div style="display: flex; gap: 10px;"><button class="btn-action btn-details" onclick="closeModal('deleteBookModal')" style="flex: 1; padding: 15px;">إلغاء</button><button class="btn-danger" onclick="confirmDeleteBook()" style="flex: 1; margin-top: 0;">نعم</button></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // تهيئة Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCgBRrDHnN5j4pbI2GvvEEYV6ffORxYT9U",
+            authDomain: "manara-library.firebaseapp.com",
+            projectId: "manara-library",
+            storageBucket: "manara-library.firebasestorage.app",
+            messagingSenderId: "623882732554",
+            appId: "1:623882732554:web:417b7cfb81cd26c3334bf3"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // ==================== بيانات الكتب ====================
+        const libraryBooks = [
+            { id: 1, title: "هاري بوتر وحجر الفيلسوف", category: "خيال", icon: "fa-hat-wizard", rating: 4.8, desc: "الجزء الأول من سلسلة هاري بوتر الشهيرة.", borrowedCount: 0 },
+            { id: 2, title: "هاري بوتر وحجرة الأسرار", category: "خيال", icon: "fa-dragon", rating: 4.7, desc: "يواجه هاري لغزاً غامضاً في عامه الثاني.", borrowedCount: 0 },
+            { id: 3, title: "هاري بوتر وسجين أزكابان", category: "خيال", icon: "fa-ghost", rating: 4.9, desc: "هروب سجين خطير من سجن أزكابان.", borrowedCount: 0 },
+            { id: 4, title: "هاري بوتر وكأس النار", category: "خيال", icon: "fa-fire", rating: 4.8, desc: "بطولة السحرة الثلاثية.", borrowedCount: 0 },
+            { id: 5, title: "هاري بوتر وجماعة العنقاء", category: "خيال", icon: "fa-feather", rating: 4.6, desc: "عودة اللورد فولدمورت.", borrowedCount: 0 },
+            { id: 6, title: "هاري بوتر والأمير الهجين", category: "خيال", icon: "fa-flask", rating: 4.7, desc: "أسرار جديدة عن ماضي فولدمورت.", borrowedCount: 0 },
+            { id: 7, title: "هاري بوتر ومقدسات الموت", category: "خيال", icon: "fa-skull", rating: 5.0, desc: "الجزء الأخير والملحمي.", borrowedCount: 0 },
+            { id: 8, title: "الرسائل السوداء", category: "غموض", icon: "fa-envelope", rating: 4.5, desc: "رسائل غامضة تهدد حياة شخص ما.", borrowedCount: 0 },
+            { id: 9, title: "ذو البدلة", category: "غموض", icon: "fa-user-secret", rating: 4.4, desc: "رجل غامض يرتدي بدلة.", borrowedCount: 0 },
+            { id: 10, title: "إبزيم الحذاء", category: "غموض", icon: "fa-shoe-prints", rating: 4.3, desc: "دليل صغير يقود إلى كشف جريمة.", borrowedCount: 0 },
+            { id: 11, title: "موت السيدة ماغنتي", category: "غموض", icon: "fa-home", rating: 4.6, desc: "جريمة قتل غامضة.", borrowedCount: 0 },
+            { id: 12, title: "ثلاثة عشر لغزاً", category: "غموض", icon: "fa-puzzle-piece", rating: 4.7, desc: "مجموعة من الألغاز الذكية.", borrowedCount: 0 },
+            { id: 13, title: "شركاء في الجريمة", category: "غموض", icon: "fa-handshake", rating: 4.5, desc: "ثنائي رائع يحل أعقد القضايا.", borrowedCount: 0 },
+            { id: 14, title: "موت اللورد إدجوير", category: "غموض", icon: "fa-crown", rating: 4.6, desc: "جريمة في وسط عائلة أرستقراطية.", borrowedCount: 0 },
+            { id: 15, title: "الأربعة الكبار", category: "غموض", icon: "fa-users", rating: 4.4, desc: "منظمة سرية خطيرة.", borrowedCount: 0 },
+            { id: 16, title: "قصص الأنبياء", category: "ديني", icon: "fa-mosque", rating: 5.0, desc: "سرد قصصي رائع لحياة الأنبياء.", borrowedCount: 0 },
+            { id: 17, title: "سيرة النبي المختار", category: "ديني", icon: "fa-star-and-crescent", rating: 5.0, desc: "سيرة شاملة ومبسطة.", borrowedCount: 0 },
+            { id: 18, title: "مغامرات توم سوير", category: "مغامرات", icon: "fa-ship", rating: 4.5, desc: "مغامرات طفل مشاغب.", borrowedCount: 0 },
+            { id: 19, title: "عندما تطير الفراشات", category: "قصص", icon: "fa-butterfly", rating: 4.2, desc: "قصة مؤثرة عن الأمل.", borrowedCount: 0 },
+            { id: 20, title: "ملكة النحل", category: "قصص", icon: "fa-bee", rating: 4.1, desc: "رحلة ممتعة في عالم النحل.", borrowedCount: 0 },
+            { id: 21, title: "غضب إله الرحمة", category: "روايات", icon: "fa-book", rating: 4.3, desc: "رواية عميقة.", borrowedCount: 0 },
+            { id: 22, title: "موسوعة العلمية الميسرة", category: "علوم", icon: "fa-atom", rating: 4.8, desc: "شرح مبسط للظواهر العلمية.", borrowedCount: 0 },
+            { id: 23, title: "الفيزياء والعلوم", category: "علوم", icon: "fa-flask", rating: 4.6, desc: "رحلة في عالم الفيزياء.", borrowedCount: 0 },
+            { id: 24, title: "المعجم العالمي المصور", category: "مراجع", icon: "fa-globe", rating: 4.9, desc: "مرجع شامل بالصور.", borrowedCount: 0 },
+            { id: 25, title: "دليل الطبخ والحلويات", category: "طبخ", icon: "fa-utensils", rating: 4.5, desc: "وصفات سهلة ولذيذة.", borrowedCount: 0 },
+            { id: 26, title: "أطلس الحيوان", category: "علوم", icon: "fa-paw", rating: 4.7, desc: "استكشاف عالم الحيوانات.", borrowedCount: 0 },
+            { id: 27, title: "موسوعة العناية بالطفل", category: "أسرة", icon: "fa-baby", rating: 4.4, desc: "دليل شامل للأمهات والآباء.", borrowedCount: 0 },
+            { id: 28, title: "كيف تبدأ المستقبل", category: "تنمية بشرية", icon: "fa-rocket", rating: 4.6, desc: "خطوات لبناء مستقبل ناجح.", borrowedCount: 0 },
+            { id: 29, title: "الخرائط الموسيقية", category: "فنون", icon: "fa-music", rating: 4.2, desc: "رحلة في تاريخ الموسيقى.", borrowedCount: 0 },
+            { id: 30, title: "رواد الحاسوب", category: "تقنية", icon: "fa-laptop-code", rating: 4.8, desc: "قصص ملهمة لمبتكري الحاسوب.", borrowedCount: 0 },
+            { id: 31, title: "الموسوعة الطبية الحديثة", category: "طب", icon: "fa-stethoscope", rating: 4.9, desc: "مرجع طبي شامل.", borrowedCount: 0 },
+            { id: 32, title: "الغذاء والدواء", category: "صحة", icon: "fa-apple-alt", rating: 4.5, desc: "كل ما تحتاج معرفته عن التغذية.", borrowedCount: 0 },
+            { id: 33, title: "زوربا", category: "روايات", icon: "fa-book", rating: 4.7, desc: "رواية فلسفية خالدة.", borrowedCount: 0 },
+            { id: 34, title: "نهاية رجل شجاع", category: "روايات", icon: "fa-shield-alt", rating: 4.6, desc: "ملحمة أدبية عن الصراع.", borrowedCount: 0 },
+            { id: 35, title: "الشوك والقرنفل", category: "روايات", icon: "fa-leaf", rating: 4.5, desc: "رواية اجتماعية.", borrowedCount: 0 },
+            { id: 36, title: "اللورد الصغير", category: "روايات", icon: "fa-crown", rating: 4.4, desc: "قصة طفل يعود لعرشه.", borrowedCount: 0 },
+            { id: 37, title: "موت صغير", category: "روايات", icon: "fa-dove", rating: 4.8, desc: "تأملات في الحياة والفناء.", borrowedCount: 0 },
+            { id: 38, title: "وعد على ريش حسون", category: "روايات", icon: "fa-feather", rating: 4.5, desc: "وعد قطعه البطل.", borrowedCount: 0 },
+            { id: 39, title: "خريف شجرة الرمان", category: "روايات", icon: "fa-tree", rating: 4.6, desc: "حكاية عن الفقد والأمل.", borrowedCount: 0 },
+            { id: 40, title: "بحر الظلمات", category: "روايات", icon: "fa-water", rating: 4.3, desc: "مغامرة في أعماق البحار.", borrowedCount: 0 },
+            { id: 41, title: "صاحب الظل الطويل 1", category: "روايات", icon: "fa-user", rating: 4.9, desc: "الجزء الأول.", borrowedCount: 0 },
+            { id: 42, title: "فجر إدريبية", category: "روايات", icon: "fa-sun", rating: 4.4, desc: "رواية تاريخية.", borrowedCount: 0 },
+            { id: 43, title: "إلى المنارة", category: "روايات", icon: "fa-lightbulb", rating: 4.7, desc: "رحلة بحث عن المعنى.", borrowedCount: 0 },
+            { id: 44, title: "صاحب الظل الطويل 2", category: "روايات", icon: "fa-user-friends", rating: 4.9, desc: "الجزء الثاني.", borrowedCount: 0 },
+            { id: 45, title: "طيار والأسكا", category: "روايات", icon: "fa-plane", rating: 4.5, desc: "مغامرة جوية.", borrowedCount: 0 },
+            { id: 46, title: "أضواء سبتمبر", category: "روايات", icon: "fa-city", rating: 4.3, desc: "رواية عن الحنين.", borrowedCount: 0 },
+            { id: 47, title: "كيف قتلت أبي", category: "روايات", icon: "fa-mask", rating: 4.6, desc: "رواية غامضة.", borrowedCount: 0 },
+            { id: 48, title: "واحة اليعقوب", category: "روايات", icon: "fa-tree", rating: 4.4, desc: "حكاية صحراوية.", borrowedCount: 0 },
+            { id: 49, title: "لا أهمية للأسماء", category: "روايات", icon: "fa-bookmark", rating: 4.7, desc: "رواية فلسفية.", borrowedCount: 0 },
+            { id: 50, title: "شيفرة بلال", category: "روايات", icon: "fa-key", rating: 4.5, desc: "لغز تاريخي.", borrowedCount: 0 },
+            { id: 51, title: "النوم الأسود", category: "روايات", icon: "fa-moon", rating: 4.2, desc: "رواية غامضة.", borrowedCount: 0 },
+            { id: 52, title: "سارياع الحديثة", category: "روايات", icon: "fa-ship", rating: 4.3, desc: "رحلة بحرية.", borrowedCount: 0 },
+            { id: 53, title: "ساق البامبو", category: "روايات", icon: "fa-seedling", rating: 4.8, desc: "رواية عالمية.", borrowedCount: 0 },
+            { id: 54, title: "وداعاً طليلة", category: "روايات", icon: "fa-hand-wave", rating: 4.6, desc: "قصة حب وفراق.", borrowedCount: 0 },
+            { id: 55, title: "فارس الأندلس", category: "روايات", icon: "fa-horse", rating: 4.7, desc: "ملحمة أندلسية.", borrowedCount: 0 },
+            { id: 56, title: "الحفرة", category: "روايات", icon: "fa-mountain", rating: 4.5, desc: "رواية غامضة.", borrowedCount: 0 },
+            { id: 57, title: "جريمة ضد مجهول", category: "روايات", icon: "fa-search", rating: 4.4, desc: "لغز جريمة.", borrowedCount: 0 },
+            { id: 58, title: "الأسد والساحرة", category: "روايات", icon: "fa-paw", rating: 4.9, desc: "مغامرة خيالية.", borrowedCount: 0 },
+            { id: 59, title: "الأستاذة منار", category: "روايات", icon: "fa-chalkboard-teacher", rating: 4.5, desc: "قصة معلمة ملهمة.", borrowedCount: 0 },
+            { id: 60, title: "مينتو", category: "روايات", icon: "fa-hat-cowboy", rating: 4.6, desc: "مغامرة غربية.", borrowedCount: 0 },
+            { id: 61, title: "الغريب", category: "روايات", icon: "fa-user-secret", rating: 4.8, desc: "رواية فلسفية.", borrowedCount: 0 },
+            { id: 62, title: "قضية ذيل القط", category: "روايات", icon: "fa-cat", rating: 4.3, desc: "لغز غامض.", borrowedCount: 0 },
+            { id: 63, title: "سيدة الغيمات", category: "روايات", icon: "fa-cloud", rating: 4.5, desc: "رواية خيالية.", borrowedCount: 0 },
+            { id: 64, title: "سيدة التعاملين", category: "روايات", icon: "fa-handshake", rating: 4.4, desc: "قصة امرأة أعمال.", borrowedCount: 0 },
+            { id: 65, title: "قضية ست الحسن", category: "روايات", icon: "fa-user", rating: 4.2, desc: "لغز جريمة.", borrowedCount: 0 },
+            { id: 66, title: "ابني الذي لم يأت بعد", category: "روايات", icon: "fa-baby", rating: 4.7, desc: "رواية مؤثرة.", borrowedCount: 0 },
+            { id: 67, title: "قضية عنب الثعلب", category: "روايات", icon: "fa-grapes", rating: 4.3, desc: "قصة قصيرة.", borrowedCount: 0 },
+            { id: 68, title: "قلب من زجاج", category: "روايات", icon: "fa-heart", rating: 4.8, desc: "رواية رومانسية.", borrowedCount: 0 },
+            { id: 69, title: "الخطة السرية لإنقاذ البشرية", category: "روايات", icon: "fa-globe", rating: 4.6, desc: "خيال علمي.", borrowedCount: 0 },
+            { id: 70, title: "عدوي اللدود", category: "روايات", icon: "fa-swords", rating: 4.5, desc: "قصة صراع.", borrowedCount: 0 },
+            { id: 71, title: "قناع بلون السماء", category: "روايات", icon: "fa-mask", rating: 4.4, desc: "رواية غامضة.", borrowedCount: 0 },
+            { id: 72, title: "قربان ليونس", category: "روايات", icon: "fa-fish", rating: 4.3, desc: "حكاية شعبية.", borrowedCount: 0 },
+            { id: 73, title: "أفراح المقبرة", category: "روايات", icon: "fa-cross", rating: 4.7, desc: "رواية فلسفية.", borrowedCount: 0 },
+            { id: 74, title: "كن الشخص الذي يجعلك سعيداً", category: "تنمية بشرية", icon: "fa-smile", rating: 4.8, desc: "دليل عملي للسعادة.", borrowedCount: 0 },
+            { id: 75, title: "أغنياء وبسطاء", category: "تنمية بشرية", icon: "fa-coins", rating: 4.5, desc: "السعادة في البساطة.", borrowedCount: 0 },
+            { id: 76, title: "الوحيد الذي تملكه", category: "تنمية بشرية", icon: "fa-user-check", rating: 4.7, desc: "قوتك الداخلية.", borrowedCount: 0 },
+            { id: 77, title: "أن تكون عظيماً", category: "تنمية بشرية", icon: "fa-star", rating: 4.6, desc: "خطوات لتحقيق العظمة.", borrowedCount: 0 },
+            { id: 78, title: "مختصر كلامي", category: "تنمية بشرية", icon: "fa-comment-dots", rating: 4.4, desc: "التواصل الفعال.", borrowedCount: 0 },
+            { id: 79, title: "صباحك أنت", category: "تنمية بشرية", icon: "fa-sun", rating: 4.5, desc: "ابدأ يومك بإيجابية.", borrowedCount: 0 },
+            { id: 80, title: "الف إيجابياً", category: "تنمية بشرية", icon: "fa-thumbs-up", rating: 4.3, desc: "قوة التفكير الإيجابي.", borrowedCount: 0 },
+            { id: 81, title: "السفر للأفضل", category: "تنمية بشرية", icon: "fa-plane-departure", rating: 4.6, desc: "رحلة تطوير الذات.", borrowedCount: 0 },
+            { id: 82, title: "العادات الذرية", category: "تنمية بشرية", icon: "fa-atom", rating: 4.9, desc: "قوة التغييرات الصغيرة.", borrowedCount: 0 },
+            { id: 83, title: "الرقص مع الحياة", category: "تنمية بشرية", icon: "fa-music", rating: 4.4, desc: "التعامل مع التقلبات.", borrowedCount: 0 },
+            { id: 84, title: "تميز بالأصغر", category: "تنمية بشرية", icon: "fa-gem", rating: 4.5, desc: "التميز في التفاصيل.", borrowedCount: 0 },
+            { id: 85, title: "طلاقات اللسان", category: "تنمية بشرية", icon: "fa-comments", rating: 4.2, desc: "فنون الكلام.", borrowedCount: 0 },
+            { id: 86, title: "العادات السبع", category: "تنمية بشرية", icon: "fa-list-ol", rating: 4.8, desc: "أشهر كتاب تطوير.", borrowedCount: 0 },
+            { id: 87, title: "تاريخ مذهل في وقت قياسي", category: "تنمية بشرية", icon: "fa-history", rating: 4.6, desc: "رحلة في التاريخ.", borrowedCount: 0 },
+            { id: 88, title: "القائد في داخلك", category: "تنمية بشرية", icon: "fa-chess-king", rating: 4.7, desc: "اكتشف القائد.", borrowedCount: 0 },
+            { id: 89, title: "فكر وتصرف كأنك قط", category: "تنمية بشرية", icon: "fa-cat", rating: 4.3, desc: "دروس في الهدوء.", borrowedCount: 0 },
+            { id: 90, title: "أنت الدواء", category: "تنمية بشرية", icon: "fa-pills", rating: 4.5, desc: "اشف نفسك.", borrowedCount: 0 },
+            { id: 91, title: "خواطر شباب", category: "تنمية بشرية", icon: "fa-pen-fancy", rating: 4.4, desc: "تأملات شبابية.", borrowedCount: 0 },
+            { id: 92, title: "فناجين مضادة للاكتئاب", category: "تنمية بشرية", icon: "fa-mug-hot", rating: 4.6, desc: "وصفات للتفاؤل.", borrowedCount: 0 },
+            { id: 93, title: "إنك تعود للصواب", category: "تنمية بشرية", icon: "fa-redo", rating: 4.5, desc: "استعادة التوازن.", borrowedCount: 0 },
+            { id: 94, title: "مدرسة الأقوياء", category: "تنمية بشرية", icon: "fa-dumbbell", rating: 4.7, desc: "القوة النفسية.", borrowedCount: 0 },
+            { id: 95, title: "كارزما وحوار", category: "تنمية بشرية", icon: "fa-comment", rating: 4.6, desc: "فن الكاريزما.", borrowedCount: 0 },
+            { id: 96, title: "نظرة الصواب", category: "تنمية بشرية", icon: "fa-eye", rating: 4.4, desc: "رؤية واضحة.", borrowedCount: 0 },
+            { id: 97, title: "الظاهر بيبرس", category: "تاريخ", icon: "fa-crown", rating: 4.8, desc: "قائد مملوكي.", borrowedCount: 0 },
+            { id: 98, title: "عبد الرحمن الداخل", category: "تاريخ", icon: "fa-flag", rating: 4.7, desc: "صقر قريش.", borrowedCount: 0 },
+            { id: 99, title: "عبد الملك بن مروان", category: "تاريخ", icon: "fa-landmark", rating: 4.6, desc: "خليفة أموي.", borrowedCount: 0 },
+            { id: 100, title: "خالد بن الوليد", category: "تاريخ", icon: "fa-swords", rating: 4.9, desc: "سيف الله.", borrowedCount: 0 },
+            { id: 101, title: "هانيبال", category: "تاريخ", icon: "fa-elephant", rating: 4.7, desc: "قائد قرطاجي.", borrowedCount: 0 },
+            { id: 102, title: "عبد الرحمن المجاوش", category: "تاريخ", icon: "fa-shield-alt", rating: 4.5, desc: "فارس أندلسي.", borrowedCount: 0 },
+            { id: 103, title: "الإسكندر", category: "تاريخ", icon: "fa-chess-king", rating: 4.8, desc: "فاتح العالم.", borrowedCount: 0 },
+            { id: 104, title: "المأمون بن الرشيد", category: "تاريخ", icon: "fa-book", rating: 4.7, desc: "خليفة العلم.", borrowedCount: 0 },
+            { id: 105, title: "عمر بن العاص", category: "تاريخ", icon: "fa-map", rating: 4.6, desc: "فاتح مصر.", borrowedCount: 0 },
+            { id: 106, title: "عمر بن الخطاب", category: "تاريخ", icon: "fa-balance-scale", rating: 5.0, desc: "الفاروق.", borrowedCount: 0 },
+            { id: 107, title: "هارون الرشيد", category: "تاريخ", icon: "fa-moon", rating: 4.9, desc: "خليفة بغداد.", borrowedCount: 0 },
+            { id: 108, title: "أبو الريحان البيروني", category: "تاريخ", icon: "fa-flask", rating: 4.7, desc: "عالم فلك.", borrowedCount: 0 },
+            { id: 109, title: "ابن خلدون", category: "تاريخ", icon: "fa-scroll", rating: 4.9, desc: "مؤسس علم الاجتماع.", borrowedCount: 0 },
+            { id: 110, title: "مئة من عظماء أمة الإسلام", category: "تاريخ", icon: "fa-users", rating: 4.8, desc: "قصص ملهمة.", borrowedCount: 0 },
+            { id: 111, title: "معركة بدر الكبرى", category: "تاريخ", icon: "fa-shield-alt", rating: 5.0, desc: "أول معركة.", borrowedCount: 0 },
+            { id: 112, title: "معركة اليمامة", category: "تاريخ", icon: "fa-fire", rating: 4.7, desc: "معركة الردة.", borrowedCount: 0 },
+            { id: 113, title: "معركة القادسية", category: "تاريخ", icon: "fa-fort-awesome", rating: 4.8, desc: "فتح فارس.", borrowedCount: 0 },
+            { id: 114, title: "معركة أحد", category: "تاريخ", icon: "fa-mountain", rating: 4.9, desc: "معركة الجبل.", borrowedCount: 0 },
+            { id: 115, title: "معركة حطين", category: "تاريخ", icon: "fa-chess-rook", rating: 4.9, desc: "تحرير القدس.", borrowedCount: 0 },
+            { id: 116, title: "معركة الزلاقة", category: "تاريخ", icon: "fa-book", rating: 4.7, desc: "انتصار الأندلس.", borrowedCount: 0 },
+            { id: 117, title: "معركة الأرك", category: "تاريخ", icon: "fa-swords", rating: 4.8, desc: "ملحمة الأندلس.", borrowedCount: 0 },
+            { id: 118, title: "معركة بلاط الشهداء", category: "تاريخ", icon: "fa-shield", rating: 4.6, desc: "بلاط الشهداء.", borrowedCount: 0 },
+            { id: 119, title: "معركة ذي قار", category: "تاريخ", icon: "fa-crosshairs", rating: 4.5, desc: "انتصار العرب.", borrowedCount: 0 },
+            { id: 120, title: "فتح القسطنطينية", category: "تاريخ", icon: "fa-landmark", rating: 5.0, desc: "محمد الفاتح.", borrowedCount: 0 },
+            { id: 121, title: "معركة عين جالوت", category: "تاريخ", icon: "fa-horse-head", rating: 4.9, desc: "هزيمة المغول.", borrowedCount: 0 },
+            { id: 122, title: "غزوة الخندق", category: "تاريخ", icon: "fa-shield-virus", rating: 4.8, desc: "غزوة الأحزاب.", borrowedCount: 0 },
+            { id: 123, title: "غزوة بدر", category: "تاريخ", icon: "fa-star", rating: 5.0, desc: "يوم الفرقان.", borrowedCount: 0 },
+            { id: 124, title: "الهشاشة النفسية", category: "علم نفس", icon: "fa-brain", rating: 4.8, desc: "التعامل مع الهشاشة.", borrowedCount: 0 },
+            { id: 125, title: "مشكلات نفسية", category: "علم نفس", icon: "fa-puzzle-piece", rating: 4.7, desc: "حلول عملية.", borrowedCount: 0 },
+            { id: 126, title: "جروح نفسية", category: "علم نفس", icon: "fa-heart-broken", rating: 4.6, desc: "التئام الجروح.", borrowedCount: 0 },
+            { id: 127, title: "حرر نفسك", category: "علم نفس", icon: "fa-unlock", rating: 4.9, desc: "التحرر من القيود.", borrowedCount: 0 },
+            { id: 128, title: "النجاة وهم العلاج النفسي", category: "علم نفس", icon: "fa-first-aid", rating: 4.5, desc: "نظرة نقدية.", borrowedCount: 0 },
+            { id: 129, title: "لماذا يخاف أبوك من هاتفك", category: "علم نفس", icon: "fa-mobile-alt", rating: 4.4, desc: "صراع الأجيال.", borrowedCount: 0 },
+            { id: 130, title: "اعرف ما تفكر فيه", category: "علم نفس", icon: "fa-eye", rating: 4.8, desc: "قراءة الأفكار.", borrowedCount: 0 },
+            { id: 131, title: "الخطوة الأولى للمعرفة", category: "علم نفس", icon: "fa-shoe-prints", rating: 4.6, desc: "الاعتراف بالاحتياج.", borrowedCount: 0 },
+            { id: 132, title: "لغز القصر الأحمر", category: "ألغاز", icon: "fa-chess-rook", rating: 4.7, desc: "لغز غامض.", borrowedCount: 0 },
+            { id: 133, title: "لغز الكلمة ذو الرأسين", category: "ألغاز", icon: "fa-puzzle-piece", rating: 4.5, desc: "لغز كلمات.", borrowedCount: 0 },
+            { id: 134, title: "لغز الإناء المجهول", category: "ألغاز", icon: "fa-flask", rating: 4.3, desc: "لغز كيميائي.", borrowedCount: 0 },
+            { id: 135, title: "لغز السباحة عن السمكة", category: "ألغاز", icon: "fa-fish", rating: 4.4, desc: "لغز بحري.", borrowedCount: 0 },
+            { id: 136, title: "لغز الحلاقة", category: "ألغاز", icon: "fa-cut", rating: 4.2, desc: "لغز منطقي.", borrowedCount: 0 },
+            { id: 137, title: "طائرة باريس", category: "ألغاز", icon: "fa-plane", rating: 4.6, desc: "لغز الطائرة.", borrowedCount: 0 },
+            { id: 138, title: "الرجل الذي طار", category: "ألغاز", icon: "fa-user-astronaut", rating: 4.5, desc: "لغز غامض.", borrowedCount: 0 },
+            { id: 139, title: "حديقة المفاجآت", category: "ألغاز", icon: "fa-tree", rating: 4.7, desc: "لغز الحديقة.", borrowedCount: 0 },
+            { id: 140, title: "الحارس الصغير", category: "ألغاز", icon: "fa-shield-alt", rating: 4.4, desc: "لغز الحارس.", borrowedCount: 0 },
+            { id: 141, title: "صواريخ الليل", category: "ألغاز", icon: "fa-rocket", rating: 4.3, desc: "لغز فضائي.", borrowedCount: 0 },
+            { id: 142, title: "لغز البيضة الموجودة", category: "ألغاز", icon: "fa-egg", rating: 4.5, desc: "لغز البيضة.", borrowedCount: 0 },
+            { id: 143, title: "لغز الزال الأصفر", category: "ألغاز", icon: "fa-sun", rating: 4.2, desc: "لغز غامض.", borrowedCount: 0 },
+            { id: 144, title: "لغز البائع الجوال", category: "ألغاز", icon: "fa-mobile-alt", rating: 4.6, desc: "لغز التكنولوجيا.", borrowedCount: 0 },
+            { id: 145, title: "لغز الصلصال الملون", category: "ألغاز", icon: "fa-palette", rating: 4.4, desc: "لغز فني.", borrowedCount: 0 },
+            { id: 146, title: "النجمة الخضراء", category: "ألغاز", icon: "fa-star", rating: 4.5, desc: "لغز فلكي.", borrowedCount: 0 },
+            { id: 147, title: "جاسوس الجواسيس", category: "ألغاز", icon: "fa-user-secret", rating: 4.8, desc: "لغز تجسس.", borrowedCount: 0 },
+            { id: 148, title: "الرسائل الغامضة", category: "ألغاز", icon: "fa-envelope-open-text", rating: 4.7, desc: "لغز الرسائل.", borrowedCount: 0 },
+            { id: 149, title: "نفحات المجمد", category: "ألغاز", icon: "fa-snowflake", rating: 4.3, desc: "لغز القطب.", borrowedCount: 0 },
+            { id: 150, title: "الرقم الناقص", category: "ألغاز", icon: "fa-calculator", rating: 4.6, desc: "لغز رياضي.", borrowedCount: 0 },
+            { id: 151, title: "لغز الشموذة", category: "ألغاز", icon: "fa-candle", rating: 4.4, desc: "لغز الشموع.", borrowedCount: 0 },
+            { id: 152, title: "الرسالة الطائرة", category: "ألغاز", icon: "fa-paper-plane", rating: 4.5, desc: "لغز الرسالة.", borrowedCount: 0 },
+            { id: 153, title: "الولد الأخرس", category: "ألغاز", icon: "fa-child", rating: 4.7, desc: "لغز الطفل.", borrowedCount: 0 },
+            { id: 154, title: "الفتاة المشلولة", category: "ألغاز", icon: "fa-wheelchair", rating: 4.6, desc: "لغز غامض.", borrowedCount: 0 },
+            { id: 155, title: "لغز السباحة عن السمكة", category: "ألغاز", icon: "fa-swimmer", rating: 4.3, desc: "لغز مائي.", borrowedCount: 0 },
+            { id: 156, title: "عمر أبو ريشة القصائد", category: "لغة عربية", icon: "fa-feather-alt", rating: 4.9, desc: "ديوان الشاعر.", borrowedCount: 0 },
+            { id: 157, title: "عمر أبو ريشة السرديات", category: "لغة عربية", icon: "fa-book-open", rating: 4.8, desc: "سرديات.", borrowedCount: 0 },
+            { id: 158, title: "شعر الأطفال والمسرحية", category: "لغة عربية", icon: "fa-theater-masks", rating: 4.7, desc: "مسرحيات شعرية.", borrowedCount: 0 },
+            { id: 159, title: "نصوص مختارة من الأدب الإسلامي", category: "لغة عربية", icon: "fa-quran", rating: 4.9, desc: "مختارات إسلامية.", borrowedCount: 0 },
+            { id: 160, title: "كتب الأطفال وسيرها", category: "لغة عربية", icon: "fa-child", rating: 4.6, desc: "سير الأطفال.", borrowedCount: 0 },
+            { id: 161, title: "دروس في الإعراب (د)", category: "لغة عربية", icon: "fa-spell-check", rating: 4.5, desc: "دروس الإعراب.", borrowedCount: 0 },
+            { id: 162, title: "دروس في الإعراب (هـ)", category: "لغة عربية", icon: "fa-spell-check", rating: 4.5, desc: "دروس الإعراب.", borrowedCount: 0 },
+            { id: 163, title: "حكايات ليلة ودمعة", category: "لغة عربية", icon: "fa-moon", rating: 4.8, desc: "حكايات مؤثرة.", borrowedCount: 0 },
+            { id: 164, title: "الكامل في النحو والصرف والإملاء", category: "لغة عربية", icon: "fa-book", rating: 4.9, desc: "مرجع شامل.", borrowedCount: 0 },
+            { id: 165, title: "نفحات الجد", category: "لغة عربية", icon: "fa-star", rating: 4.7, desc: "نفحات أدبية.", borrowedCount: 0 },
+            { id: 166, title: "الأطفال مرآة لشعر", category: "لغة عربية", icon: "fa-mirror", rating: 4.6, desc: "شعر الأطفال.", borrowedCount: 0 },
+            { id: 167, title: "شمس الغروب في واحة المعري", category: "لغة عربية", icon: "fa-sun", rating: 4.8, desc: "دراسة شعرية.", borrowedCount: 0 },
+            { id: 168, title: "النحو الواضح", category: "لغة عربية", icon: "fa-check-circle", rating: 4.9, desc: "كتاب النحو.", borrowedCount: 0 },
+            { id: 169, title: "شمس الغراب في واحة المعري", category: "لغة عربية", icon: "fa-crow", rating: 4.7, desc: "دراسة شعرية.", borrowedCount: 0 },
+            { id: 170, title: "قصائد تسر الأطفال", category: "لغة عربية", icon: "fa-smile", rating: 4.5, desc: "قصائد للأطفال.", borrowedCount: 0 },
+            { id: 171, title: "جمال العربية", category: "لغة عربية", icon: "fa-language", rating: 4.9, desc: "جماليات اللغة.", borrowedCount: 0 },
+            { id: 172, title: "ديوان عمر أبو ريشة", category: "لغة عربية", icon: "fa-feather", rating: 4.8, desc: "الديوان الكامل.", borrowedCount: 0 },
+            { id: 173, title: "حكايات عن القراءة", category: "لغة عربية", icon: "fa-book-reader", rating: 4.6, desc: "حب القراءة.", borrowedCount: 0 },
+            { id: 174, title: "الطريق إلى المعرفة", category: "لغة عربية", icon: "fa-road", rating: 4.7, desc: "رحلة المعرفة.", borrowedCount: 0 }
+        ];
+
+        // ==================== متغيرات النظام ====================
+        let libraryData = { books: libraryBooks, borrowings: [], logs: [] };
+        let allUsers = [];
+        let isAdmin = false;
+        let currentUser = null;
+        let adminPassword = "12345mm";
+        const ADMIN_PHONE = "963949510250";
+        let bookToDeleteId = null;
+
+        async function saveDataToFirebase() {
+            try {
+                await db.collection('library').doc('main').set(libraryData);
+                await db.collection('library').doc('users').set({ users: allUsers });
+            } catch (e) {
+                console.error('خطأ في الحفظ:', e);
+                showToast('حدث خطأ في الحفظ.', 'error');
+            }
+        }
+
+        async function loadDataFromFirebase() {
+            try {
+                const libraryDoc = await db.collection('library').doc('main').get();
+                if (libraryDoc.exists) {
+                    libraryData = libraryDoc.data();
+                } else {
+                    await db.collection('library').doc('main').set(libraryData);
+                }
+
+                const usersDoc = await db.collection('library').doc('users').get();
+                if (usersDoc.exists) {
+                    allUsers = usersDoc.data().users || [];
+                } else {
+                    await db.collection('library').doc('users').set({ users: [] });
+                }
+
+                db.collection('library').doc('main').onSnapshot((doc) => {
+                    if (doc.exists) {
+                        libraryData = doc.data();
+                        updateStats();
+                        filterBooks();
+                        updateLeaderboard();
+                        if (isAdmin) renderAdminPanel();
+                    }
+                });
+
+                db.collection('library').doc('users').onSnapshot((doc) => {
+                    if (doc.exists) {
+                        allUsers = doc.data().users || [];
+                        if (isAdmin) renderAdminPanel();
+                    }
+                });
+
+                document.getElementById('loadingScreen').style.display = 'none';
+            } catch (e) {
+                console.error('خطأ في التحميل:', e);
+                document.getElementById('loadingScreen').innerHTML = '<p style="color:#fff;text-align:center;padding:20px;">تعذر الاتصال بالخادم.</p>';
+            }
+        }
+
+        loadDataFromFirebase();
+
+        function enterLibrary() {
+            document.getElementById('splashScreen').classList.add('hidden');
+            document.getElementById('mainSite').classList.add('visible');
+            updateUserBar();
+            updateStats();
+            filterBooks();
+            updateLeaderboard();
+            renderAdminPanel();
+            populateManualBorrowSelects();
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('manaraTheme', isDark ? 'dark' : 'light');
+            document.getElementById('themeBtn').innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        }
+
+        function togglePasswordVisibility(inputId, icon) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') { input.type = 'text'; icon.classList.remove('fa-eye'); icon.classList.add('fa-eye-slash'); }
+            else { input.type = 'password'; icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye'); }
+        }
+
+        function encryptPassword(password) { return btoa(password); }
+        function decryptPassword(encrypted) { try { return atob(encrypted); } catch(e) { return encrypted; } }
+
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icon = type === 'success' ? '<i class="fas fa-check-circle" style="color: var(--success);"></i>' :
+                         type === 'error' ? '<i class="fas fa-exclamation-circle" style="color: var(--danger);"></i>' :
+                         type === 'warning' ? '<i class="fas fa-exclamation-triangle" style="color: var(--warning);"></i>' :
+                         '<i class="fas fa-info-circle" style="color: var(--info);"></i>';
+            toast.innerHTML = `${icon} <span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.style.animation = 'slideInLeft 0.4s ease reverse forwards'; setTimeout(() => toast.remove(), 400); }, 4000);
+        }
+
+        function openSignupModal() {
+            document.getElementById('signupModal').classList.add('active');
+            document.getElementById('signupFullName').value = '';
+            document.getElementById('signupUsername').value = '';
+            document.getElementById('signupPassword').value = '';
+            document.getElementById('signupClass').value = '';
+            document.getElementById('signupSpecialty').value = '';
+            document.getElementById('signupType').value = 'طالب';
+            toggleSignupFields();
+        }
+
+        function toggleSignupFields() {
+            const type = document.getElementById('signupType').value;
+            document.getElementById('signupClassGroup').style.display = type === 'طالب' ? 'block' : 'none';
+            document.getElementById('signupSpecialtyGroup').style.display = type === 'موظف' ? 'block' : 'none';
+        }
+
+        async function signupUser() {
+            const fullName = document.getElementById('signupFullName').value.trim();
+            const username = document.getElementById('signupUsername').value.trim();
+            const password = document.getElementById('signupPassword').value;
+            const type = document.getElementById('signupType').value;
+            const cls = document.getElementById('signupClass').value.trim();
+            const specialty = document.getElementById('signupSpecialty').value.trim();
+
+            if (!fullName || !username || !password) { showToast('الرجاء تعبئة الحقول الإلزامية.', 'error'); return; }
+            if (password.length < 6) { showToast('كلمة المرور 6 أحرف على الأقل.', 'error'); return; }
+            if (allUsers.some(u => u.username === username)) { showToast('اسم المستخدم موجود.', 'error'); return; }
+
+            const newUser = {
+                fullName, username,
+                password: encryptPassword(password),
+                type, class: cls, specialty,
+                isAdmin: false,
+                status: 'pending',
+                createdAt: new Date().toISOString()
+            };
+            allUsers.push(newUser);
+            libraryData.logs.push({ action: 'طلب حساب', book: '---', user: fullName, date: new Date().toLocaleString('ar-EG') });
+            await saveDataToFirebase();
+
+            closeModal('signupModal');
+            showToast('تم إرسال طلبك! بانتظار موافقة الإدارة.', 'success');
+        }
+
+        function openStudentLoginModal() {
+            document.getElementById('studentLoginModal').classList.add('active');
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+        }
+
+        function loginUser() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!username || !password) { showToast('أدخل البيانات.', 'error'); return; }
+
+            const user = allUsers.find(u => u.username === username && u.status === 'approved');
+            if (!user) { showToast('الحساب غير موجود أو لم يُعتمد.', 'error'); return; }
+            if (decryptPassword(user.password) !== password) { showToast('كلمة المرور خاطئة.', 'error'); return; }
+
+            currentUser = user;
+            localStorage.setItem('manaraCurrentUser', JSON.stringify(currentUser));
+            closeModal('studentLoginModal');
+            
+            if (user.isAdmin) {
+                isAdmin = true;
+                document.getElementById('adminPanelLink').style.display = 'block';
+                document.getElementById('adminBar').classList.add('active');
+                document.getElementById('adminBar').innerHTML = `<i class="fas fa-check-circle"></i> أنت أدمن مكتبة.`;
+            } else {
+                isAdmin = false;
+                document.getElementById('adminBar').classList.remove('active');
+            }
+            
+            updateUserBar();
+            showToast(`مرحباً ${user.fullName}!`, 'success');
+            filterBooks();
+            renderAdminPanel();
+        }
+
+        function logoutStudent() {
+            if (confirm('تسجيل الخروج؟')) {
+                currentUser = null;
+                isAdmin = false;
+                localStorage.removeItem('manaraCurrentUser');
+                document.getElementById('adminPanelLink').style.display = 'none';
+                document.getElementById('adminBar').classList.remove('active');
+                updateUserBar();
+                filterBooks();
+                showToast('تم الخروج.', 'info');
+            }
+        }
+
+        function updateUserBar() {
+            const userBar = document.getElementById('userBar');
+            if (currentUser) {
+                document.getElementById('currentUserName').textContent = currentUser.fullName + (currentUser.isAdmin ? ' ⭐' : '');
+                userBar.classList.add('active');
+                document.getElementById('studentLoginBtn').style.display = 'none';
+                document.getElementById('loginBtn').style.display = 'none';
+                document.getElementById('logoutBtn').style.display = 'flex';
+            } else {
+                userBar.classList.remove('active');
+                document.getElementById('studentLoginBtn').style.display = 'flex';
+                document.getElementById('loginBtn').style.display = 'flex';
+                document.getElementById('logoutBtn').style.display = 'none';
+            }
+        }
+
+        function openLoginModal() { document.getElementById('loginModal').classList.add('active'); document.getElementById('adminPassword').value = ''; }
+
+        function login() {
+            const password = document.getElementById('adminPassword').value;
+            if (password === adminPassword) {
+                isAdmin = true;
+                closeModal('loginModal');
+                document.getElementById('loginBtn').style.display = 'none';
+                document.getElementById('studentLoginBtn').style.display = 'none';
+                document.getElementById('logoutBtn').style.display = 'flex';
+                document.getElementById('adminPanelLink').style.display = 'block';
+                document.getElementById('adminBar').classList.add('active');
+                document.getElementById('adminBar').innerHTML = `<i class="fas fa-check-circle"></i> أنت مسؤول المكتبة الرئيسي.`;
+                document.getElementById('userBar').classList.remove('active');
+                document.getElementById('adminPanel').classList.add('active');
+                document.getElementById('books').style.display = 'none';
+                document.getElementById('search').style.display = 'none';
+                document.getElementById('leaderboard').style.display = 'none';
+                showToast('مرحباً بك!', 'success');
+                renderAdminPanel();
+                updateStats();
+                populateManualBorrowSelects();
+            } else { showToast('كلمة المرور خاطئة!', 'error'); }
+        }
+
+        function logout() {
+            isAdmin = false;
+            currentUser = null;
+            localStorage.removeItem('manaraCurrentUser');
+            document.getElementById('loginBtn').style.display = 'flex';
+            document.getElementById('studentLoginBtn').style.display = 'flex';
+            document.getElementById('logoutBtn').style.display = 'none';
+            document.getElementById('adminPanelLink').style.display = 'none';
+            document.getElementById('adminBar').classList.remove('active');
+            document.getElementById('adminPanel').classList.remove('active');
+            document.getElementById('books').style.display = 'block';
+            document.getElementById('search').style.display = 'block';
+            document.getElementById('leaderboard').style.display = 'block';
+            updateUserBar();
+            showToast('تم الخروج.', 'info');
+            updateStats();
+            filterBooks();
+        }
+
+        function showAdminPanel() {
+            if (isAdmin) {
+                document.getElementById('adminPanel').classList.add('active');
+                document.getElementById('books').style.display = 'none';
+                document.getElementById('search').style.display = 'none';
+                document.getElementById('leaderboard').style.display = 'none';
+                renderAdminPanel();
+                populateManualBorrowSelects();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function updateStats() {
+            const total = libraryData.books.length;
+            const borrowed = libraryData.borrowings.filter(b => b.status === 'borrowed').length;
+            const available = total - borrowed;
+            const users = new Set(libraryData.borrowings.map(b => b.borrowerName));
+            document.getElementById('totalBooks').textContent = total;
+            document.getElementById('availableBooks').textContent = available;
+            document.getElementById('borrowedBooks').textContent = borrowed;
+            document.getElementById('activeStudents').textContent = users.size;
+        }
+
+        function filterBooks() {
+            const category = document.getElementById('categoryFilter').value;
+            const sort = document.getElementById('sortFilter').value;
+            let filtered = [...libraryData.books];
+            if (category !== 'all') filtered = filtered.filter(b => b.category === category);
+            if (sort === 'title') filtered.sort((a, b) => a.title.localeCompare(b.title, 'ar'));
+            else if (sort === 'popular') filtered.sort((a, b) => b.borrowedCount - a.borrowedCount);
+            else if (sort === 'available') filtered.sort((a, b) => {
+                const aB = libraryData.borrowings.some(sb => sb.bookId === a.id && sb.status === 'borrowed');
+                const bB = libraryData.borrowings.some(sb => sb.bookId === b.id && sb.status === 'borrowed');
+                return aB - bB;
+            });
+            renderBooks(filtered);
+        }
+
+        function renderBooks(books) {
+            const grid = document.getElementById('booksGrid');
+            grid.innerHTML = '';
+            if (books.length === 0) { grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">لا توجد كتب مطابقة.</p>'; return; }
+
+            books.forEach(book => {
+                const isBorrowed = libraryData.borrowings.some(b => b.bookId === book.id && b.status === 'borrowed');
+                const isPending = libraryData.borrowings.some(b => b.bookId === book.id && b.status === 'pending');
+                let statusClass = 'available', statusText = 'متاح';
+                if (isBorrowed) { statusClass = 'borrowed'; statusText = 'مستعار'; }
+                else if (isPending) { statusClass = 'pending'; statusText = 'قيد المراجعة'; }
+
+                const userRequest = currentUser ? libraryData.borrowings.find(b => b.bookId === book.id && b.borrowerUsername === currentUser.username && b.status === 'pending') : null;
+                const isMyBorrow = currentUser ? libraryData.borrowings.some(b => b.bookId === book.id && b.borrowerUsername === currentUser.username && b.status === 'borrowed') : false;
+
+                const card = document.createElement('div');
+                card.className = 'book-card';
+                
+                let actionButton = '';
+                if (isBorrowed) {
+                    if (isMyBorrow || isAdmin) actionButton = `<button class="btn-action btn-return" onclick="openReturnModal(${book.id})"><i class="fas fa-undo"></i> تراجع</button>`;
+                    else actionButton = `<button class="btn-action btn-return" disabled style="opacity:0.5;cursor:not-allowed;"><i class="fas fa-lock"></i> مستعار</button>`;
+                } else if (isPending) {
+                    if (userRequest || isAdmin) actionButton = `<button class="btn-action btn-cancel" onclick="openCancelModal(${book.id})"><i class="fas fa-times"></i> إلغاء</button>`;
+                    else actionButton = `<button class="btn-action btn-cancel" disabled style="opacity:0.5;cursor:not-allowed;"><i class="fas fa-clock"></i> قيد المراجعة</button>`;
+                } else {
+                    actionButton = `<button class="btn-action btn-borrow" onclick="openBorrowModal(${book.id})"><i class="fas fa-hand-holding-heart"></i> طلب</button>`;
+                }
+
+                const coverHTML = book.cover ? `<img src="${book.cover}" alt="${book.title}" style="width:100%;height:100%;object-fit:cover;">` : `<i class="fas ${book.icon}"></i>`;
+
+                card.innerHTML = `
+                    <div class="book-img">
+                        ${coverHTML}
+                        <span class="badge ${statusClass}">${statusText}</span>
+                    </div>
+                    <div class="book-info">
+                        <h3>${book.title}</h3>
+                        <div class="book-meta">
+                            <span><i class="fas fa-tag"></i> ${book.category}</span>
+                            <span class="stars"><i class="fas fa-star"></i> ${book.rating}</span>
+                        </div>
+                        <p style="font-size: 0.9rem; color: var(--text-light); margin-bottom: 1rem; flex: 1;">${book.desc.substring(0, 60)}...</p>
+                        <div class="book-actions">
+                            <button class="btn-action btn-details" onclick="showDetails(${book.id})"><i class="fas fa-info-circle"></i> تفاصيل</button>
+                            ${actionButton}
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function searchBook() {
+            const query = document.getElementById('bookSearchInput').value.trim().toLowerCase();
+            const resultDiv = document.getElementById('searchResult');
+            if (!query) { resultDiv.className = 'result-error'; resultDiv.textContent = 'أدخل اسم الكتاب.'; resultDiv.style.display = 'block'; return; }
+            const found = libraryData.books.filter(b => b.title.toLowerCase().includes(query));
+            if (found.length > 0) {
+                resultDiv.className = 'result-success';
+                resultDiv.innerHTML = `✅ تم العثور على ${found.length} كتاب.`;
+                renderBooks(found);
+                document.getElementById('books').scrollIntoView({ behavior: 'smooth' });
+            } else {
+                resultDiv.className = 'result-error';
+                resultDiv.textContent = '❌ لا يوجد كتاب بهذا الاسم.';
+                resultDiv.style.display = 'block';
+            }
+        }
+
+        function showDetails(bookId) {
+            const book = libraryData.books.find(b => b.id === bookId);
+            if (!book) return;
+            const isBorrowed = libraryData.borrowings.some(b => b.bookId === book.id && b.status === 'borrowed');
+            const isPending = libraryData.borrowings.some(b => b.bookId === book.id && b.status === 'pending');
+            const isMyBorrow = currentUser ? libraryData.borrowings.some(b => b.bookId === book.id && b.borrowerUsername === currentUser.username && b.status === 'borrowed') : false;
+            let actionBtn = '';
+            
+            if (isBorrowed) {
+                if (isMyBorrow && book.pdf) {
+                    actionBtn = `<a href="${book.pdf}" target="_blank" class="btn-action btn-pdf" style="width:100%;padding:15px;margin-bottom:10px;display:flex;justify-content:center;text-decoration:none;"><i class="fas fa-file-pdf"></i> قراءة الكتاب (PDF)</a>`;
+                }
+                if (isMyBorrow || isAdmin) {
+                    actionBtn += `<button class="btn-danger" onclick="closeModal('detailsModal'); openReturnModal(${book.id})" style="width:100%;padding:15px;">تراجع عن الاستعارة</button>`;
+                } else {
+                    actionBtn += `<button class="btn-danger" disabled style="width:100%;padding:15px;opacity:0.5;">الكتاب مستعار حالياً</button>`;
+                }
+            } else if (isPending) {
+                if (isAdmin || (currentUser && libraryData.borrowings.some(b => b.bookId === book.id && b.borrowerUsername === currentUser.username && b.status === 'pending'))) {
+                    actionBtn = `<button class="btn-cancel" onclick="closeModal('detailsModal'); openCancelModal(${book.id})" style="width:100%;padding:15px;">إلغاء الطلب</button>`;
+                } else {
+                    actionBtn = `<button class="btn-cancel" disabled style="width:100%;padding:15px;opacity:0.5;">قيد المراجعة</button>`;
+                }
+            } else {
+                actionBtn = `<button class="btn-borrow" onclick="closeModal('detailsModal'); openBorrowModal(${book.id})" style="width:100%;padding:15px;">طلب استعارة</button>`;
+            }
+
+            const coverHTML = book.cover ? `<img src="${book.cover}" alt="${book.title}" style="width: 150px; height: 200px; object-fit: cover; border-radius: 8px; margin: 0 auto 1rem; display: block;">` : `<i class="fas ${book.icon}" style="font-size: 4rem; color: var(--primary); margin-bottom: 1rem;"></i>`;
+
+            document.getElementById('detailsBody').innerHTML = `
+                <div style="text-align: center; margin-bottom: 1.5rem;">
+                    ${coverHTML}
+                    <h3 style="color: var(--primary); font-size: 1.8rem;">${book.title}</h3>
+                    <p style="color: var(--text-muted);">${book.category} | <i class="fas fa-star" style="color:#f1c40f;"></i> ${book.rating}/5</p>
+                </div>
+                <p style="font-size: 1.1rem; margin-bottom: 1.5rem;">${book.desc}</p>
+                <div style="background: var(--accent); padding: 15px; border-radius: 8px; margin-bottom: 1.5rem;">
+                    <p><strong>الحالة:</strong> <span style="color: ${isBorrowed ? 'var(--danger)' : isPending ? '#f39c12' : 'var(--success)'}; font-weight: bold;">${isBorrowed ? 'مستعار' : isPending ? 'قيد المراجعة' : 'متاح'}</span></p>
+                    <p><strong>عدد الاستعارات:</strong> ${book.borrowedCount}</p>
+                    ${book.pdf ? '<p><i class="fas fa-file-pdf" style="color: #6a1b9a;"></i> نسخة إلكترونية متوفرة</p>' : ''}
+                </div>
+                ${actionBtn}
+            `;
+            document.getElementById('detailsModal').classList.add('active');
+        }
+
+        function openBorrowModal(bookId) {
+            if (!currentUser) { showToast('سجل الدخول أولاً.', 'warning'); openStudentLoginModal(); return; }
+            const book = libraryData.books.find(b => b.id === bookId);
+            if (!book) return;
+            document.getElementById('borrowBookTitle').textContent = book.title;
+            document.getElementById('borrowerName').value = currentUser.fullName;
+            document.getElementById('borrowerType').value = currentUser.type;
+            document.getElementById('borrowDate').value = new Date().toISOString().split('T')[0];
+            const twoWeeks = new Date(); twoWeeks.setDate(twoWeeks.getDate() + 14);
+            document.getElementById('returnDate').value = twoWeeks.toISOString().split('T')[0];
+            document.getElementById('borrowNotes').value = '';
+            document.getElementById('borrowModal').classList.add('active');
+        }
+
+        async function sendWhatsAppRequest() {
+            if (!currentUser) { showToast('سجل الدخول أولاً.', 'error'); return; }
+            const borrowDate = document.getElementById('borrowDate').value;
+            const returnDate = document.getElementById('returnDate').value;
+            const notes = document.getElementById('borrowNotes').value.trim();
+
+            if (!borrowDate || !returnDate) { showToast('املأ الحقول الإلزامية.', 'error'); return; }
+            const book = libraryData.books.find(b => b.title === document.getElementById('borrowBookTitle').textContent);
+            if (!book) return;
+
+            const newRequest = {
+                id: Date.now(),
+                bookId: book.id,
+                bookTitle: book.title,
+                borrowerName: currentUser.fullName,
+                borrowerUsername: currentUser.username,
+                borrowerType: currentUser.type,
+                borrowerSpecialty: currentUser.specialty || '',
+                borrowerClass: currentUser.class || '',
+                borrowDate: borrowDate,
+                returnDate: returnDate,
+                notes: notes,
+                status: 'pending'
+            };
+            libraryData.borrowings.push(newRequest);
+            await saveDataToFirebase();
+
+            let message = `📚 *طلب استعارة جديد* 📚\n\n` +
+                          `👤 *الاسم:* ${currentUser.fullName}\n` +
+                          `📖 *الكتاب:* ${book.title}\n` +
+                          `📅 *من:* ${borrowDate} ⏳ *إلى:* ${returnDate}\n`;
+            window.open(`https://wa.me/${ADMIN_PHONE}?text=${encodeURIComponent(message)}`, '_blank');
+
+            closeModal('borrowModal');
+            showToast('تم إرسال طلبك!', 'info');
+        }
+
+        function openCancelModal(bookId) {
+            const book = libraryData.books.find(b => b.id === bookId);
+            if (!book) return;
+            document.getElementById('cancelBookTitle').textContent = book.title;
+            document.getElementById('cancelRequestModal').classList.add('active');
+        }
+
+        async function confirmCancelRequest() {
+            const title = document.getElementById('cancelBookTitle').textContent;
+            const book = libraryData.books.find(b => b.title === title);
+            if (!book) return;
+            const index = libraryData.borrowings.findIndex(b => b.bookId === book.id && b.status === 'pending' && (isAdmin || (currentUser && b.borrowerUsername === currentUser.username)));
+            if (index !== -1) {
+                libraryData.borrowings.splice(index, 1);
+                await saveDataToFirebase();
+                closeModal('cancelRequestModal');
+                showToast('تم إلغاء الطلب.', 'success');
+            } else { showToast('لم يتم العثور على الطلب.', 'error'); }
+        }
+
+        function openReturnModal(bookId) {
+            const book = libraryData.books.find(b => b.id === bookId);
+            if (!book) return;
+            document.getElementById('returnBookTitle').textContent = book.title;
+            document.getElementById('returnModal').classList.add('active');
+        }
+
+        async function confirmReturn() {
+            const title = document.getElementById('returnBookTitle').textContent;
+            const book = libraryData.books.find(b => b.title === title);
+            if (!book) return;
+            const index = libraryData.borrowings.findIndex(b => b.bookId === book.id && b.status === 'borrowed' && (isAdmin || (currentUser && b.borrowerUsername === currentUser.username)));
+            if (index !== -1) {
+                libraryData.borrowings.splice(index, 1);
+                if (book.borrowedCount > 0) book.borrowedCount--;
+                await saveDataToFirebase();
+                closeModal('returnModal');
+                showToast(`تم التراجع عن "${book.title}".`, 'success');
+            } else { showToast('لم يتم العثور على السجل.', 'error'); closeModal('returnModal'); }
+        }
+
+        function renderAdminPanel() {
+            if (!isAdmin) return;
+
+            const pendingList = document.getElementById('pendingRequestsList');
+            const pending = libraryData.borrowings.filter(b => b.status === 'pending');
+            document.getElementById('pendingCount').textContent = pending.length;
+
+            if (pending.length === 0) {
+                pendingList.innerHTML = '<p style="color: var(--text-muted);">لا توجد طلبات معلقة.</p>';
+            } else {
+                pendingList.innerHTML = pending.map(req => `
+                    <div class="request-item">
+                        <div class="request-info">
+                            <strong>${req.borrowerName}</strong> (${req.borrowerType}) <br>
+                            طلب: <strong>${req.bookTitle}</strong> <br>
+                            <small>من ${req.borrowDate} إلى ${req.returnDate}</small>
+                        </div>
+                        <div class="request-actions">
+                            <button class="btn-approve" onclick="approveRequest(${req.id})"><i class="fas fa-check"></i> موافقة</button>
+                            <button class="btn-reject" onclick="rejectRequest(${req.id})"><i class="fas fa-times"></i> رفض</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            const activeList = document.getElementById('activeBorrowsList');
+            const activeBorrows = libraryData.borrowings.filter(b => b.status === 'borrowed');
+            if (activeBorrows.length === 0) {
+                activeList.innerHTML = '<p style="color: var(--text-muted);">لا توجد استعارات نشطة.</p>';
+            } else {
+                activeList.innerHTML = activeBorrows.map(req => `
+                    <div class="request-item" style="border-right-color: var(--success);">
+                        <div class="request-info">
+                            <strong>${req.borrowerName}</strong> <br>
+                            استعار: <strong>${req.bookTitle}</strong>
+                        </div>
+                        <div class="request-actions">
+                            <button class="btn-reject" onclick="openReturnModal(${req.bookId})"><i class="fas fa-undo"></i> تراجع</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            const pendingUsersList = document.getElementById('pendingUsersList');
+            const pendingUsers = allUsers.filter(u => u.status === 'pending');
+            document.getElementById('pendingUsersCount').textContent = pendingUsers.length;
+
+            if (pendingUsers.length === 0) {
+                pendingUsersList.innerHTML = '<p style="color: var(--text-muted);">لا توجد طلبات حساب معلقة.</p>';
+            } else {
+                pendingUsersList.innerHTML = pendingUsers.map(user => `
+                    <div class="request-item" style="border-right-color: var(--warning);">
+                        <div class="request-info">
+                            <strong>${user.fullName}</strong> <br>
+                            <small>🆔 ${user.username} | ${user.type}${user.class ? ' - ' + user.class : ''}${user.specialty ? ' - ' + user.specialty : ''}</small>
+                        </div>
+                        <div class="request-actions">
+                            <button class="btn-approve-user" onclick="approveUser('${user.username}')"><i class="fas fa-check"></i> موافقة</button>
+                            <button class="btn-reject-user" onclick="rejectUser('${user.username}')"><i class="fas fa-times"></i> رفض</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            const adminBooksList = document.getElementById('adminBooksList');
+            adminBooksList.innerHTML = libraryData.books.map(book => `
+                <div class="admin-book-item">
+                    <h4>${book.title}</h4>
+                    <p><i class="fas fa-tag"></i> ${book.category} | ${book.rating}⭐</p>
+                    ${book.pdf ? '<p style="color: #6a1b9a;"><i class="fas fa-file-pdf"></i> PDF</p>' : ''}
+                    <div class="actions">
+                        <button class="btn-edit" onclick="openEditBookModal(${book.id})"><i class="fas fa-edit"></i></button>
+                        <button class="btn-delete" onclick="openDeleteBookModal(${book.id})"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
+
+            const usersList = document.getElementById('usersList');
+            if (allUsers.length === 0) {
+                usersList.innerHTML = '<p style="color: var(--text-muted);">لا يوجد مستخدمون.</p>';
+            } else {
+                usersList.innerHTML = allUsers.map(user => `
+                    <div class="user-item">
+                        <div class="user-header">
+                            <h4>${user.fullName}</h4>
+                            ${user.status === 'pending' ? '<span class="badge-pending">معلق</span>' : user.isAdmin ? '<span class="badge-admin">⭐ أدمن</span>' : user.type === 'موظف' ? '<span class="badge-employee">موظف</span>' : '<span class="badge-student">طالب</span>'}
+                        </div>
+                        <p><i class="fas fa-user"></i> ${user.username}</p>
+                        <p><i class="fas fa-key"></i> ${decryptPassword(user.password)}</p>
+                        <p><i class="fas fa-tag"></i> ${user.type}${user.specialty ? ' - ' + user.specialty : ''}${user.class ? ' - ' + user.class : ''}</p>
+                        <div class="actions">
+                            ${user.status === 'pending' 
+                                ? `<button class="btn-approve-user" onclick="approveUser('${user.username}')">موافقة</button>
+                                   <button class="btn-reject-user" onclick="rejectUser('${user.username}')">رفض</button>`
+                                : `${user.isAdmin 
+                                    ? `<button class="btn-demote" onclick="toggleUserAdmin('${user.username}', false)">إلغاء الأدمن</button>`
+                                    : `<button class="btn-promote" onclick="toggleUserAdmin('${user.username}', true)">تعيين كأدمن</button>`
+                                   }
+                                   <button class="btn-delete" onclick="deleteUser('${user.username}')">حذف</button>`
+                            }
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            const logDiv = document.getElementById('activityLog');
+            if (libraryData.logs.length === 0) {
+                logDiv.innerHTML = '<p style="color: var(--text-muted);">لا توجد نشاطات.</p>';
+            } else {
+                logDiv.innerHTML = libraryData.logs.slice(-20).reverse().map(log => `
+                    <div style="padding: 10px; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">
+                        <span style="color: var(--info); font-weight: bold;">[${log.action}]</span>
+                        ${log.user} - ${log.book} <span style="color: var(--text-muted); font-size: 0.8rem;">(${log.date})</span>
+                    </div>
+                `).join('');
+            }
+
+            populateManualBorrowSelects();
+        }
+
+        async function approveRequest(borrowId) {
+            if (!isAdmin) return;
+            const borrow = libraryData.borrowings.find(b => b.id === borrowId);
+            if (!borrow) return;
+            borrow.status = 'borrowed';
+            const book = libraryData.books.find(b => b.id === borrow.bookId);
+            if (book) book.borrowedCount++;
+            libraryData.logs.push({ action: 'موافقة', book: book.title, user: borrow.borrowerName, date: new Date().toLocaleString('ar-EG') });
+            await saveDataToFirebase();
+            showToast(`تمت الموافقة.`, 'success');
+        }
+
+        async function rejectRequest(borrowId) {
+            if (!isAdmin) return;
+            const borrow = libraryData.borrowings.find(b => b.id === borrowId);
+            if (!borrow) return;
+            const book = libraryData.books.find(b => b.id === borrow.bookId);
+            libraryData.logs.push({ action: 'رفض', book: book.title, user: borrow.borrowerName, date: new Date().toLocaleString('ar-EG') });
+            libraryData.borrowings = libraryData.borrowings.filter(b => b.id !== borrowId);
+            await saveDataToFirebase();
+            showToast(`تم الرفض.`, 'error');
+        }
+
+        async function approveUser(username) {
+            if (!isAdmin) return;
+            const user = allUsers.find(u => u.username === username);
+            if (!user) return;
+            user.status = 'approved';
+            libraryData.logs.push({ action: 'موافقة حساب', book: '---', user: user.fullName, date: new Date().toLocaleString('ar-EG') });
+            await saveDataToFirebase();
+            showToast(`تم اعتماد ${user.fullName}.`, 'success');
+        }
+
+        async function rejectUser(username) {
+            if (!isAdmin) return;
+            const user = allUsers.find(u => u.username === username);
+            if (!user) return;
+            if (confirm(`رفض حساب ${user.fullName}؟`)) {
+                allUsers = allUsers.filter(u => u.username !== username);
+                await saveDataToFirebase();
+                showToast(`تم الرفض.`, 'error');
+            }
+        }
+
+        async function toggleUserAdmin(username, makeAdmin) {
+            if (!isAdmin) return;
+            const user = allUsers.find(u => u.username === username);
+            if (!user) return;
+            user.isAdmin = makeAdmin;
+            await saveDataToFirebase();
+            showToast(makeAdmin ? 'تم التعيين كأدمن.' : 'تم إلغاء الصلاحية.', 'success');
+        }
+
+        async function deleteUser(username) {
+            if (!isAdmin) return;
+            const user = allUsers.find(u => u.username === username);
+            if (!user) return;
+            if (confirm(`حذف حساب ${user.fullName}؟`)) {
+                allUsers = allUsers.filter(u => u.username !== username);
+                await saveDataToFirebase();
+                showToast('تم الحذف.', 'success');
+            }
+        }
+
+        function openAddUserModal() {
+            if (!isAdmin) return;
+            document.getElementById('addUserModal').classList.add('active');
+            document.getElementById('addUserFullName').value = '';
+            document.getElementById('addUserUsername').value = '';
+            document.getElementById('addUserPassword').value = '';
+            document.getElementById('addUserClass').value = '';
+            document.getElementById('addUserSpecialty').value = '';
+            document.getElementById('addUserType').value = 'طالب';
+            document.getElementById('addUserIsAdmin').checked = false;
+            toggleAddUserFields();
+        }
+
+        function toggleAddUserFields() {
+            const type = document.getElementById('addUserType').value;
+            document.getElementById('addUserClassGroup').style.display = type === 'طالب' ? 'block' : 'none';
+            document.getElementById('addUserSpecialtyGroup').style.display = type === 'موظف' ? 'block' : 'none';
+        }
+
+        async function addUserByAdmin() {
+            if (!isAdmin) return;
+            const fullName = document.getElementById('addUserFullName').value.trim();
+            const username = document.getElementById('addUserUsername').value.trim();
+            const password = document.getElementById('addUserPassword').value;
+            const type = document.getElementById('addUserType').value;
+            const cls = document.getElementById('addUserClass').value.trim();
+            const specialty = document.getElementById('addUserSpecialty').value.trim();
+            const isAdminUser = document.getElementById('addUserIsAdmin').checked;
+
+            if (!fullName || !username || !password) { showToast('عبّئ الحقول.', 'error'); return; }
+            if (allUsers.some(u => u.username === username)) { showToast('اسم المستخدم موجود.', 'error'); return; }
+
+            const newUser = {
+                fullName, username,
+                password: encryptPassword(password),
+                type, class: cls, specialty,
+                isAdmin: isAdminUser,
+                status: 'approved',
+                createdAt: new Date().toISOString()
+            };
+            allUsers.push(newUser);
+            await saveDataToFirebase();
+            closeModal('addUserModal');
+            showToast(`تم إضافة ${fullName}.`, 'success');
+        }
+
+        function populateManualBorrowSelects() {
+            const userSelect = document.getElementById('manualBorrowUser');
+            const bookSelect = document.getElementById('manualBorrowBook');
+            if (!userSelect || !bookSelect) return;
+
+            const approvedUsers = allUsers.filter(u => u.status === 'approved');
+            userSelect.innerHTML = '<option value="">-- اختر مستخدماً --</option>' + approvedUsers.map(u => `<option value="${u.username}">${u.fullName} (${u.type})</option>`).join('');
+            bookSelect.innerHTML = '<option value="">-- اختر كتاباً --</option>' + libraryData.books.filter(b => !libraryData.borrowings.some(borrow => borrow.bookId === b.id && borrow.status === 'borrowed')).map(b => `<option value="${b.id}">${b.title}</option>`).join('');
+        }
+
+        async function manualBorrow() {
+            if (!isAdmin) return;
+            const username = document.getElementById('manualBorrowUser').value;
+            const bookId = parseInt(document.getElementById('manualBorrowBook').value);
+            if (!username || !bookId) { showToast('اختر المستخدم والكتاب.', 'error'); return; }
+            
+            const user = allUsers.find(u => u.username === username);
+            const book = libraryData.books.find(b => b.id === bookId);
+            if (!user || !book) return;
+
+            const newRequest = {
+                id: Date.now(),
+                bookId: book.id,
+                bookTitle: book.title,
+                borrowerName: user.fullName,
+                borrowerUsername: user.username,
+                borrowerType: user.type,
+                borrowerSpecialty: user.specialty || '',
+                borrowerClass: user.class || '',
+                borrowDate: new Date().toISOString().split('T')[0],
+                returnDate: new Date(Date.now() + 14*24*60*60*1000).toISOString().split('T')[0],
+                notes: 'استعارة يدوية',
+                status: 'borrowed'
+            };
+            libraryData.borrowings.push(newRequest);
+            book.borrowedCount++;
+            libraryData.logs.push({ action: 'استعارة يدوية', book: book.title, user: user.fullName, date: new Date().toLocaleString('ar-EG') });
+            await saveDataToFirebase();
+            showToast(`تم تسجيل الاستعارة.`, 'success');
+        }
+
+        function changeAdminPassword() {
+            if (!isAdmin) return;
+            const newPass = document.getElementById('newAdminPassword').value;
+            if (!newPass || newPass.length < 6) { showToast('كلمة المرور 6 أحرف على الأقل.', 'error'); return; }
+            adminPassword = newPass;
+            localStorage.setItem('manaraAdminPassword', encryptPassword(newPass));
+            document.getElementById('newAdminPassword').value = '';
+            showToast('تم التغيير.', 'success');
+        }
+
+        async function addNewBook() {
+            if (!isAdmin) return;
+            const title = document.getElementById('newBookTitle').value.trim();
+            const category = document.getElementById('newBookCategory').value;
+            const desc = document.getElementById('newBookDesc').value.trim();
+            const rating = parseFloat(document.getElementById('newBookRating').value) || 4.5;
+            const cover = document.getElementById('newBookCover').value.trim();
+            const pdfFile = document.getElementById('newBookPdfFile').files[0];
+
+            if (!title) { showToast('أدخل اسم الكتاب.', 'error'); return; }
+            if (libraryData.books.some(b => b.title === title)) { showToast('الكتاب موجود.', 'error'); return; }
+
+            const saveBook = async (pdfData) => {
+                const newBook = {
+                    id: Date.now(),
+                    title, category,
+                    icon: "fa-book",
+                    rating,
+                    desc: desc || 'كتاب جديد.',
+                    cover: cover || null,
+                    pdf: pdfData || null,
+                    borrowedCount: 0
+                };
+                libraryData.books.push(newBook);
+                await saveDataToFirebase();
+                document.getElementById('newBookTitle').value = '';
+                document.getElementById('newBookDesc').value = '';
+                document.getElementById('newBookCover').value = '';
+                document.getElementById('newBookPdfFile').value = '';
+                showToast('تمت الإضافة.', 'success');
+            };
+
+            if (pdfFile) {
+                if (pdfFile.size > 5 * 1024 * 1024) { showToast('حجم الملف كبير (5MB).', 'error'); return; }
+                const reader = new FileReader();
+                reader.onload = function(e) { saveBook(e.target.result); };
+                reader.readAsDataURL(pdfFile);
+            } else {
+                saveBook(null);
+            }
+        }
+
+        function openEditBookModal(bookId) {
+            if (!isAdmin) return;
+            const book = libraryData.books.find(b => b.id === bookId);
+            if (!book) return;
+            document.getElementById('editBookId').value = book.id;
+            document.getElementById('editBookTitle').value = book.title;
+            document.getElementById('editBookCategory').value = book.category;
+            document.getElementById('editBookDesc').value = book.desc;
+            document.getElementById('editBookRating').value = book.rating;
+            document.getElementById('editBookCover').value = book.cover || '';
+            document.getElementById('editBookPdfFile').value = '';
+            document.getElementById('editBookModal').classList.add('active');
+        }
+
+        async function saveEditedBook() {
+            if (!isAdmin) return;
+            const id = parseInt(document.getElementById('editBookId').value);
+            const book = libraryData.books.find(b => b.id === id);
+            if (!book) return;
+
+            const pdfFile = document.getElementById('editBookPdfFile').files[0];
+
+            const saveBook = async (pdfData) => {
+                book.title = document.getElementById('editBookTitle').value.trim() || book.title;
+                book.category = document.getElementById('editBookCategory').value;
+                book.desc = document.getElementById('editBookDesc').value.trim() || book.desc;
+                book.rating = parseFloat(document.getElementById('editBookRating').value) || book.rating;
+                book.cover = document.getElementById('editBookCover').value.trim() || null;
+                if (pdfData) book.pdf = pdfData;
+                await saveDataToFirebase();
+                closeModal('editBookModal');
+                showToast('تم الحفظ.', 'success');
+            };
+
+            if (pdfFile) {
+                if (pdfFile.size > 5 * 1024 * 1024) { showToast('حجم الملف كبير.', 'error'); return; }
+                const reader = new FileReader();
+                reader.onload = function(e) { saveBook(e.target.result); };
+                reader.readAsDataURL(pdfFile);
+            } else {
+                saveBook(null);
+            }
+        }
+
+        function openDeleteBookModal(bookId) {
+            if (!isAdmin) return;
+            const book = libraryData.books.find(b => b.id === bookId);
+            if (!book) return;
+            bookToDeleteId = bookId;
+            document.getElementById('deleteBookTitle').textContent = book.title;
+            document.getElementById('deleteBookModal').classList.add('active');
+        }
+
+        async function confirmDeleteBook() {
+            if (!isAdmin) return;
+            if (!bookToDeleteId) return;
+            libraryData.books = libraryData.books.filter(b => b.id !== bookToDeleteId);
+            await saveDataToFirebase();
+            closeModal('deleteBookModal');
+            bookToDeleteId = null;
+            showToast('تم الحذف.', 'success');
+        }
+
+        function exportData() {
+            if (!isAdmin) return;
+            const dataStr = JSON.stringify({ library: libraryData, users: allUsers }, null, 2);
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `manara_backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('تم التصدير.', 'success');
+        }
+
+        async function resetSystem() {
+            if (!isAdmin) return;
+            if (confirm('تصفير النظام بالكامل؟')) {
+                libraryData = { books: libraryBooks, borrowings: [], logs: [] };
+                allUsers = [];
+                await saveDataToFirebase();
+                location.reload();
+            }
+        }
+
+        function updateLeaderboard() {
+            const active = libraryData.borrowings.filter(b => b.status === 'borrowed');
+            if (active.length === 0) {
+                document.getElementById('winnerName').textContent = 'لا يوجد قراء بعد';
+                document.getElementById('winnerStats').textContent = 'كن أول من يستعير كتاباً!';
+                return;
+            }
+            const counts = {};
+            active.forEach(r => { counts[r.borrowerName] = (counts[r.borrowerName] || 0) + 1; });
+            let top = '', max = 0;
+            for (const [name, count] of Object.entries(counts)) { if (count > max) { max = count; top = name; } }
+            document.getElementById('winnerName').textContent = top;
+            document.getElementById('winnerStats').textContent = `عدد الكتب: ${max}`;
+        }
+
+        window.addEventListener('load', () => {
+            const savedUser = localStorage.getItem('manaraCurrentUser');
+            if (savedUser) { try { currentUser = JSON.parse(savedUser); } catch(e) {} }
+            const savedTheme = localStorage.getItem('manaraTheme');
+            if (savedTheme === 'dark') { document.body.classList.add('dark-mode'); document.getElementById('themeBtn').innerHTML = '<i class="fas fa-sun"></i>'; }
+            const savedAdminPass = localStorage.getItem('manaraAdminPassword');
+            if (savedAdminPass) { try { adminPassword = atob(savedAdminPass); } catch(e) {} }
+
+            document.getElementById('bookSearchInput').addEventListener('keypress', function(e) { if (e.key === 'Enter') searchBook(); });
+            document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('active'); }));
+
+            if (currentUser) {
+                updateUserBar();
+                if (currentUser.isAdmin) {
+                    isAdmin = true;
+                    document.getElementById('adminPanelLink').style.display = 'block';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
