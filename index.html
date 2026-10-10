@@ -497,16 +497,15 @@
                     <input type="text" id="newBookDesc" placeholder="وصف مختصر للكتاب">
                     <input type="number" id="newBookRating" placeholder="التقييم (1-5)" min="1" max="5" step="0.1" value="4.5">
                     <input type="text" id="newBookCover" placeholder="رابط صورة الغلاف (اختياري)">
-                    <div style="grid-column: span 2;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-dark);">
-                            <i class="fas fa-file-pdf" style="color: #6a1b9a;"></i> رفع ملف PDF (حتى 100 ميجابايت)
-                        </label>
-                        <input type="file" id="newBookPdfFile" accept="application/pdf" style="padding: 10px; background: var(--bg-body); border: 2px dashed var(--primary); border-radius: 8px; width: 100%;">
-                    </div>
-                    <button onclick="addNewBook()"><i class="fas fa-save"></i> حفظ الكتاب</button>
-                </div>
-            </div>
-
+                   <div style="grid-column: span 2;">
+    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-dark);">
+        <i class="fas fa-link" style="color: #6a1b9a;"></i> رابط ملف PDF (من Google Drive أو MediaFire)
+    </label>
+    <input type="text" id="newBookPdfUrl" placeholder="https://drive.google.com/uc?export=download&id=..." style="padding: 12px; background: var(--bg-body); border: 2px solid var(--primary); border-radius: 8px; width: 100%;">
+    <small style="color: var(--text-muted); display: block; margin-top: 5px;">
+        ارفعي الملف على Google Drive → Share → Anyone with link → انسخي الرابط → حوّليه
+    </small>
+</div>
             <div class="admin-content" id="tab-manage">
                 <h3><i class="fas fa-edit"></i> إدارة الكتب (<span id="totalBooksAdmin">0</span> كتاب)</h3>
                 <div class="admin-books-list" id="adminBooksList"></div>
@@ -675,11 +674,11 @@
                 <div class="form-group"><label>الوصف</label><textarea id="editBookDesc" rows="3"></textarea></div>
                 <div class="form-group"><label>التقييم</label><input type="number" id="editBookRating" min="1" max="5" step="0.1"></div>
                 <div class="form-group"><label>رابط الغلاف</label><input type="text" id="editBookCover"></div>
-                <div class="form-group">
-                    <label><i class="fas fa-file-pdf" style="color: #6a1b9a;"></i> رفع ملف PDF جديد (حتى 100 ميجابايت)</label>
-                    <input type="file" id="editBookPdfFile" accept="application/pdf" style="padding: 10px; background: var(--bg-body); border: 2px dashed var(--primary); border-radius: 8px;">
-                    <small style="color: var(--text-muted); display: block; margin-top: 5px;">اتركيه فارغاً إذا لم تريد تغيير الملف الحالي.</small>
-                </div>
+             <div class="form-group">
+    <label><i class="fas fa-link" style="color: #6a1b9a;"></i> رابط ملف PDF جديد (اختياري)</label>
+    <input type="text" id="editBookPdfUrl" placeholder="https://...">
+    <small style="color: var(--text-muted); display: block; margin-top: 5px;">اتركيه فارغاً إذا لم تريد تغيير الملف.</small>
+</div>
                 <button class="btn-whatsapp" onclick="saveEditedBook()" style="background: var(--primary);"><i class="fas fa-save"></i> حفظ</button>
             </div>
         </div>
@@ -1676,7 +1675,7 @@
             const desc = document.getElementById('newBookDesc').value.trim();
             const rating = parseFloat(document.getElementById('newBookRating').value) || 4.5;
             const cover = document.getElementById('newBookCover').value.trim();
-            const pdfFile = document.getElementById('newBookPdfFile').files[0];
+           const pdfUrl = document.getElementById('newBookPdfUrl').value.trim();
 
             if (!title) { showToast('أدخل اسم الكتاب.', 'error'); return; }
             if (libraryData.books.some(b => b.title === title)) { showToast('يوجد كتاب بنفس الاسم.', 'error'); return; }
@@ -1704,11 +1703,7 @@
                 renderAdminPanel();
             };
 
-            if (pdfFile) {
-                if (pdfFile.size > 100 * 1024 * 1024) {
-                    showToast('حجم الملف كبير جداً (الحد الأقصى 100 ميجابايت).', 'error');
-                    return;
-                }
+           await saveBook(pdfUrl || null);
                 showToast('جاري رفع الملف، يرجى الانتظار...', 'info');
                 
                 try {
@@ -1758,7 +1753,7 @@
             const book = libraryData.books.find(b => b.id === id);
             if (!book) return;
 
-            const pdfFile = document.getElementById('editBookPdfFile').files[0];
+           const pdfUrl = document.getElementById('editBookPdfUrl').value.trim();
 
             const saveBook = async (pdfUrl) => {
                 book.title = document.getElementById('editBookTitle').value.trim() || book.title;
@@ -1775,11 +1770,7 @@
                 renderAdminPanel();
             };
 
-            if (pdfFile) {
-                if (pdfFile.size > 100 * 1024 * 1024) {
-                    showToast('حجم الملف كبير جداً (الحد الأقصى 100 ميجابايت).', 'error');
-                    return;
-                }
+           await saveBook(pdfUrl || null);
                 showToast('جاري رفع الملف، يرجى الانتظار...', 'info');
 
                 try {
