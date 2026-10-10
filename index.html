@@ -168,7 +168,6 @@
         .add-book-form textarea { grid-column: span 2; resize: vertical; }
         .add-book-form button { grid-column: span 2; padding: 15px; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; }
         .add-book-form button:hover { background: var(--primary-hover); }
-        .add-book-form input[type="file"] { padding: 8px; background: var(--bg-card); border: 1px dashed var(--primary); }
 
         .admin-books-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; margin-top: 1rem; }
         .admin-book-item { background: var(--bg-card); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 5px; box-shadow: var(--shadow-sm); transition: var(--transition); }
@@ -459,23 +458,17 @@
 
             <div class="admin-content active" id="tab-borrow">
                 <h3><i class="fas fa-clock"></i> طلبات الاستعارة المعلقة (<span id="pendingCount">0</span>)</h3>
-                <div id="pendingRequestsList">
-                    <p style="color: var(--text-muted);">لا توجد طلبات معلقة حالياً.</p>
-                </div>
+                <div id="pendingRequestsList"><p style="color: var(--text-muted);">لا توجد طلبات معلقة حالياً.</p></div>
             </div>
 
             <div class="admin-content" id="tab-active">
                 <h3><i class="fas fa-book-reader"></i> الاستعارات النشطة (<span id="activeCount">0</span>)</h3>
-                <div id="activeBorrowsList">
-                    <p style="color: var(--text-muted);">لا توجد استعارات نشطة حالياً.</p>
-                </div>
+                <div id="activeBorrowsList"><p style="color: var(--text-muted);">لا توجد استعارات نشطة حالياً.</p></div>
             </div>
 
             <div class="admin-content" id="tab-users">
                 <h3><i class="fas fa-user-clock"></i> طلبات إنشاء الحسابات المعلقة (<span id="pendingUsersCount">0</span>)</h3>
-                <div id="pendingUsersList">
-                    <p style="color: var(--text-muted);">لا توجد طلبات حساب معلقة حالياً.</p>
-                </div>
+                <div id="pendingUsersList"><p style="color: var(--text-muted);">لا توجد طلبات حساب معلقة حالياً.</p></div>
             </div>
 
             <div class="admin-content" id="tab-add">
@@ -497,15 +490,19 @@
                     <input type="text" id="newBookDesc" placeholder="وصف مختصر للكتاب">
                     <input type="number" id="newBookRating" placeholder="التقييم (1-5)" min="1" max="5" step="0.1" value="4.5">
                     <input type="text" id="newBookCover" placeholder="رابط صورة الغلاف (اختياري)">
-                   <div style="grid-column: span 2;">
-    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-dark);">
-        <i class="fas fa-link" style="color: #6a1b9a;"></i> رابط ملف PDF (من Google Drive أو MediaFire)
-    </label>
-    <input type="text" id="newBookPdfUrl" placeholder="https://drive.google.com/uc?export=download&id=..." style="padding: 12px; background: var(--bg-body); border: 2px solid var(--primary); border-radius: 8px; width: 100%;">
-    <small style="color: var(--text-muted); display: block; margin-top: 5px;">
-        ارفعي الملف على Google Drive → Share → Anyone with link → انسخي الرابط → حوّليه
-    </small>
-</div>
+                    <div style="grid-column: span 2;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-dark);">
+                            <i class="fas fa-link" style="color: #6a1b9a;"></i> رابط ملف PDF (اختياري - من Google Drive أو MediaFire)
+                        </label>
+                        <input type="text" id="newBookPdfUrl" placeholder="https://drive.google.com/uc?export=download&id=..." style="padding: 12px; background: var(--bg-body); border: 2px solid var(--primary); border-radius: 8px; width: 100%;">
+                        <small style="color: var(--text-muted); display: block; margin-top: 5px;">
+                            ارفعي الملف على Google Drive → Share → Anyone with link → انسخي الرابط → حوّليه إلى رابط مباشر
+                        </small>
+                    </div>
+                    <button onclick="addNewBook()"><i class="fas fa-save"></i> حفظ الكتاب</button>
+                </div>
+            </div>
+
             <div class="admin-content" id="tab-manage">
                 <h3><i class="fas fa-edit"></i> إدارة الكتب (<span id="totalBooksAdmin">0</span> كتاب)</h3>
                 <div class="admin-books-list" id="adminBooksList"></div>
@@ -522,15 +519,11 @@
                 <div class="add-book-form" style="grid-template-columns: 1fr;">
                     <div class="form-group">
                         <label for="manualBorrowUser">اختر المستخدم</label>
-                        <select id="manualBorrowUser">
-                            <option value="">-- اختر مستخدماً --</option>
-                        </select>
+                        <select id="manualBorrowUser"><option value="">-- اختر مستخدماً --</option></select>
                     </div>
                     <div class="form-group">
                         <label for="manualBorrowBook">اختر الكتاب</label>
-                        <select id="manualBorrowBook">
-                            <option value="">-- اختر كتاباً --</option>
-                        </select>
+                        <select id="manualBorrowBook"><option value="">-- اختر كتاباً --</option></select>
                     </div>
                     <button onclick="manualBorrow()"><i class="fas fa-save"></i> تسجيل الاستعارة</button>
                 </div>
@@ -674,11 +667,11 @@
                 <div class="form-group"><label>الوصف</label><textarea id="editBookDesc" rows="3"></textarea></div>
                 <div class="form-group"><label>التقييم</label><input type="number" id="editBookRating" min="1" max="5" step="0.1"></div>
                 <div class="form-group"><label>رابط الغلاف</label><input type="text" id="editBookCover"></div>
-             <div class="form-group">
-    <label><i class="fas fa-link" style="color: #6a1b9a;"></i> رابط ملف PDF جديد (اختياري)</label>
-    <input type="text" id="editBookPdfUrl" placeholder="https://...">
-    <small style="color: var(--text-muted); display: block; margin-top: 5px;">اتركيه فارغاً إذا لم تريد تغيير الملف.</small>
-</div>
+                <div class="form-group">
+                    <label><i class="fas fa-link" style="color: #6a1b9a;"></i> رابط ملف PDF جديد (اختياري)</label>
+                    <input type="text" id="editBookPdfUrl" placeholder="https://...">
+                    <small style="color: var(--text-muted); display: block; margin-top: 5px;">اتركيه فارغاً إذا لم تريد تغيير الملف.</small>
+                </div>
                 <button class="btn-whatsapp" onclick="saveEditedBook()" style="background: var(--primary);"><i class="fas fa-save"></i> حفظ</button>
             </div>
         </div>
@@ -718,7 +711,6 @@
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
 
     <script>
         const firebaseConfig = {
@@ -732,7 +724,6 @@
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        const storage = firebase.storage();
 
         const libraryBooks = [
             { id: 1, title: "هاري بوتر وحجر الفيلسوف", category: "خيال", icon: "fa-hat-wizard", rating: 4.8, desc: "الجزء الأول من سلسلة هاري بوتر الشهيرة.", borrowedCount: 0 },
@@ -825,7 +816,8 @@
                 document.getElementById('loadingScreen').style.display = 'none';
             } catch (e) {
                 console.error('خطأ في التحميل:', e);
-                document.getElementById('loadingScreen').innerHTML = '<p style="color:#fff;text-align:center;padding:20px;">تعذر الاتصال بالخادم.</p>';
+                document.getElementById('loadingScreen').style.display = 'none';
+                showToast('تعذر الاتصال بالخادم. تحقق من الإنترنت.', 'error');
             }
         }
 
@@ -1675,62 +1667,31 @@
             const desc = document.getElementById('newBookDesc').value.trim();
             const rating = parseFloat(document.getElementById('newBookRating').value) || 4.5;
             const cover = document.getElementById('newBookCover').value.trim();
-           const pdfUrl = document.getElementById('newBookPdfUrl').value.trim();
+            const pdfUrl = document.getElementById('newBookPdfUrl').value.trim();
 
             if (!title) { showToast('أدخل اسم الكتاب.', 'error'); return; }
             if (libraryData.books.some(b => b.title === title)) { showToast('يوجد كتاب بنفس الاسم.', 'error'); return; }
 
-            const saveBook = async (pdfUrl) => {
-                const newBook = {
-                    id: Date.now(),
-                    title, category,
-                    icon: "fa-book",
-                    rating,
-                    desc: desc || 'كتاب جديد مضاف من قبل الإدارة.',
-                    cover: cover || null,
-                    pdf: pdfUrl || null,
-                    borrowedCount: 0
-                };
-                libraryData.books.push(newBook);
-                await saveDataToFirebase();
-                document.getElementById('newBookTitle').value = '';
-                document.getElementById('newBookDesc').value = '';
-                document.getElementById('newBookCover').value = '';
-                document.getElementById('newBookPdfFile').value = '';
-                showToast('تمت إضافة الكتاب بنجاح!', 'success');
-                updateStats();
-                filterBooks();
-                renderAdminPanel();
+            const newBook = {
+                id: Date.now(),
+                title, category,
+                icon: "fa-book",
+                rating,
+                desc: desc || 'كتاب جديد مضاف من قبل الإدارة.',
+                cover: cover || null,
+                pdf: pdfUrl || null,
+                borrowedCount: 0
             };
-
-           await saveBook(pdfUrl || null);
-                showToast('جاري رفع الملف، يرجى الانتظار...', 'info');
-                
-                try {
-                    const fileName = `pdfs/${Date.now()}_${pdfFile.name}`;
-                    const uploadTask = storage.ref(fileName).put(pdfFile);
-                    
-                    uploadTask.on('state_changed',
-                        (snapshot) => {
-                            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                            console.log('Upload progress: ' + progress.toFixed(1) + '%');
-                        },
-                        (error) => {
-                            console.error('خطأ في الرفع:', error);
-                            showToast('حدث خطأ في رفع الملف. تحقق من إعدادات Storage.', 'error');
-                        },
-                        async () => {
-                            const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
-                            await saveBook(downloadURL);
-                        }
-                    );
-                } catch (e) {
-                    console.error('خطأ:', e);
-                    showToast('حدث خطأ في رفع الملف.', 'error');
-                }
-            } else {
-                await saveBook(null);
-            }
+            libraryData.books.push(newBook);
+            await saveDataToFirebase();
+            document.getElementById('newBookTitle').value = '';
+            document.getElementById('newBookDesc').value = '';
+            document.getElementById('newBookCover').value = '';
+            document.getElementById('newBookPdfUrl').value = '';
+            showToast('تمت إضافة الكتاب بنجاح!', 'success');
+            updateStats();
+            filterBooks();
+            renderAdminPanel();
         }
 
         function openEditBookModal(bookId) {
@@ -1743,7 +1704,7 @@
             document.getElementById('editBookDesc').value = book.desc;
             document.getElementById('editBookRating').value = book.rating;
             document.getElementById('editBookCover').value = book.cover || '';
-            document.getElementById('editBookPdfFile').value = '';
+            document.getElementById('editBookPdfUrl').value = book.pdf || '';
             document.getElementById('editBookModal').classList.add('active');
         }
 
@@ -1753,51 +1714,18 @@
             const book = libraryData.books.find(b => b.id === id);
             if (!book) return;
 
-           const pdfUrl = document.getElementById('editBookPdfUrl').value.trim();
-
-            const saveBook = async (pdfUrl) => {
-                book.title = document.getElementById('editBookTitle').value.trim() || book.title;
-                book.category = document.getElementById('editBookCategory').value;
-                book.desc = document.getElementById('editBookDesc').value.trim() || book.desc;
-                book.rating = parseFloat(document.getElementById('editBookRating').value) || book.rating;
-                book.cover = document.getElementById('editBookCover').value.trim() || null;
-                if (pdfUrl) book.pdf = pdfUrl;
-                
-                await saveDataToFirebase();
-                closeModal('editBookModal');
-                showToast('تم حفظ التعديلات بنجاح!', 'success');
-                filterBooks();
-                renderAdminPanel();
-            };
-
-           await saveBook(pdfUrl || null);
-                showToast('جاري رفع الملف، يرجى الانتظار...', 'info');
-
-                try {
-                    const fileName = `pdfs/${Date.now()}_${pdfFile.name}`;
-                    const uploadTask = storage.ref(fileName).put(pdfFile);
-
-                    uploadTask.on('state_changed',
-                        (snapshot) => {
-                            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                            console.log('Upload progress: ' + progress.toFixed(1) + '%');
-                        },
-                        (error) => {
-                            console.error('خطأ في الرفع:', error);
-                            showToast('حدث خطأ في رفع الملف.', 'error');
-                        },
-                        async () => {
-                            const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
-                            await saveBook(downloadURL);
-                        }
-                    );
-                } catch (e) {
-                    console.error('خطأ:', e);
-                    showToast('حدث خطأ في رفع الملف.', 'error');
-                }
-            } else {
-                await saveBook(null);
-            }
+            book.title = document.getElementById('editBookTitle').value.trim() || book.title;
+            book.category = document.getElementById('editBookCategory').value;
+            book.desc = document.getElementById('editBookDesc').value.trim() || book.desc;
+            book.rating = parseFloat(document.getElementById('editBookRating').value) || book.rating;
+            book.cover = document.getElementById('editBookCover').value.trim() || null;
+            book.pdf = document.getElementById('editBookPdfUrl').value.trim() || book.pdf;
+            
+            await saveDataToFirebase();
+            closeModal('editBookModal');
+            showToast('تم حفظ التعديلات بنجاح!', 'success');
+            filterBooks();
+            renderAdminPanel();
         }
 
         function openDeleteBookModal(bookId) {
